@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const assert = require("assert").strict;
 
 //checks that each markdown page starts with "---"
 function checkTripleDash(path = ".") {
@@ -19,6 +20,7 @@ function checkTripleDash(path = ".") {
                 }
                 else {
                     console.error(fullPath + " does not have 3 dashes at the start!");
+                    assert.fail(fullPath + " needs exactly 3 dashes at the start!");
                 }
             }
         }
