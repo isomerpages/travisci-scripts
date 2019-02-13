@@ -1,0 +1,20 @@
+{
+    "name": "isomerpages-travissci-test",
+    "version": "1.0.0",
+    "description": "## Why Markdown and YAML?",
+    "main": "index.js",
+    "scripts": {
+        "test": "node travis-script.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/yicheng340/isomer-travisci-test.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/yicheng340/isomer-travisci-test/issues"
+    },
+    "homepage": "https://github.com/yicheng340/isomer-travisci-test#readme"
+}
