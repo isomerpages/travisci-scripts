@@ -1,4 +1,4 @@
---
+---
 layout: simple-page
 title: Terms of Use
 permalink: /terms-of-use/
@@ -14,4 +14,4 @@ breadcrumb: Terms of Use
 
 3. Pellentesque malesuada leo libero, et commodo lorem consequat quis. Etiam lobortis porttitor lobortis. Quisque pulvinar lorem eu dolor dictum dignissim. Sed faucibus, risus ut euismod viverra, massa nisi suscipit tellus, eu bibendum mi lorem nec mauris. Pellentesque tincidunt sem id gravida consectetur. Pellentesque id lacus ac ipsum ultricies hendrerit nec a tellus. Aliquam nec dapibus sapien. Sed laoreet sem at semper maximus.
 
-4. This is a bad commit.
+4. This is a good commit.
