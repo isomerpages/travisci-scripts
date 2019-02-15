@@ -9,7 +9,7 @@ const ignores = ["README.md", "node_modules"];
 const checkHiddens = false;
 
 const fs = require("fs");
-const checkTripleDash = require('./checkTripleDash.js');
+const markdownHandler = require('./markdownHandler.js');
 
 var errorMessage = "";
 var fileCount = 0;
@@ -20,7 +20,7 @@ var errorCount = 0;
 function readDirectory(path = ".") {
     files = fs.readdirSync(path, {"withFileTypes": true});
     files.forEach(function (file) {
-        if(!checkHiddens && file.name.startsWith(".") || file.name == "node_modules")
+        if(!checkHiddens && file.name.startsWith("."))
             return;
         for(var i = 0, len = ignores.length;i < len;i++) {
             if(file.name == ignores[i])
@@ -33,7 +33,7 @@ function readDirectory(path = ".") {
         else if(file.isFile()) {
             if(file.name.endsWith(".md")) {
                 fileCount++;
-                var checkResult = checkTripleDash.hasError(fullPath);
+                var checkResult = markdownHandler.runTest(fullPath);
                 if(checkResult) {
                     errorCount++;
                     errorMessage += checkResult;
@@ -53,11 +53,15 @@ module.exports = {
         console.log("Number of files checked: " + fileCount);
         console.log("Number of files with errors: " + errorCount);
         if(errorCount == 1) {
-            errorOutput = "Hey, this file has error(s):" + errorMessage;
+            errorOutput = "Hey, this file doesn't look right:" + errorMessage;
+            console.log("Message to be sent to Slack:");
+            console.log(errorOutput);
             return errorOutput;
         }
         else if(errorCount > 1) {
             errorOutput = "Hey, I've found errors in these " + errorCount + " files:" + errorMessage;
+            console.log("Message to be sent to Slack:");
+            console.log(errorOutput);
             return errorOutput;
         }
         else {
