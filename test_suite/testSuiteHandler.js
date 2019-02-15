@@ -1,7 +1,7 @@
 //iterates through the project directory and runs
 //the respective shell commands for each file
 
-//full name of files where checks are to be skipped
+//full name of files/folders where checks are to be skipped
 const ignores = ["README.md", "node_modules"];
 
 //should hidden files and directories (i.e. names
@@ -10,14 +10,13 @@ const checkHiddens = false;
 
 const fs = require("fs");
 const checkTripleDash = require('./checkTripleDash.js');
-const request = require("request");
-const SLACK_URI = process.env.SLACK_URI;
 
-var errorMessages = [];
+var errorMessage = "";
 var fileCount = 0;
 var errorCount = 0;
 
-//checks that each markdown page starts with "---"
+//iterates through the root directory of the repo and
+//runs the appropriate check for the file type
 function readDirectory(path = ".") {
     files = fs.readdirSync(path, {"withFileTypes": true});
     files.forEach(function (file) {
@@ -37,38 +36,32 @@ function readDirectory(path = ".") {
                 var checkResult = checkTripleDash.hasError(fullPath);
                 if(checkResult) {
                     errorCount++;
-                    console.log(fullPath, "does not have exactly 3 dashes!");
-                    errorMessages.push(checkResult);
+                    errorMessage += checkResult;
                 }
             }
         }
     });
 }
 
-//console.log("{");
-//console.log('"files": [');
-readDirectory();
-//console.log("],");
-//console.log('"offense_count": ' + errorCount);
-//console.log("}");
-console.log("Number of files checked: " + fileCount);
-console.log("Number of bad files: " + errorCount);
-if(errorCount > 0) {
-    errorMessage = "Hey, I've found some errors:";
-    for(var i=0, len=errorMessages.length;i<len;i++) {
-        errorMessage += "\n" + errorMessages[i];
-    }
-    var clientServerOptions = {
-        uri: SLACK_URI,
-        body: "{\"text\":\"" + errorMessage +"\"}",
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json'
+module.exports = {
+    //starts the test suite
+    //returns the string to be sent to Slack should there be errors
+    //returns false otherwise (i.e. all files are good)
+    startTests: function()
+    {
+        readDirectory();
+        console.log("Number of files checked: " + fileCount);
+        console.log("Number of files with errors: " + errorCount);
+        if(errorCount == 1) {
+            errorOutput = "Hey, this file has error(s):" + errorMessage;
+            return errorOutput;
+        }
+        else if(errorCount > 1) {
+            errorOutput = "Hey, I've found errors in these " + errorCount + " files:" + errorMessage;
+            return errorOutput;
+        }
+        else {
+            return false;
         }
     }
-    request(clientServerOptions, function (error, response) {
-        console.log(error);
-        console.log(response.body);
-        console.log(errorMessage);
-    })
 }

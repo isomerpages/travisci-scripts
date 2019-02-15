@@ -6,7 +6,7 @@ module.exports = {
     hasError: function(filePath) {
         data = fs.readFileSync(filePath, 'utf8');
         if(!data.startsWith("---") || data[3] == '-') {
-            return filePath + " needs to have exactly 3 dashes at the start";
+            return "\n" + filePath.substring(1) + " needs to have exactly 3 dashes at the start";
         }
         else {
             return false;
