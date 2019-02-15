@@ -67,6 +67,8 @@ if(errorCount > 0) {
         }
     }
     request(clientServerOptions, function (error, response) {
-        console.log(error, response.body, errorMessage, clientServerOptions["body"]);
+        console.log(error);
+        console.log(response.body);
+        console.log(errorMessage);
     })
 }
