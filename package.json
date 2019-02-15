@@ -4,7 +4,7 @@
     "description": "## Why Markdown and YAML?",
     "main": "index.js",
     "scripts": {
-        "test": "node travis-script.js"
+        "test": "node test_suite/directory_iterator.js"
     },
     "repository": {
         "type": "git",
@@ -16,5 +16,8 @@
     "bugs": {
         "url": "https://github.com/yicheng340/isomer-travisci-test/issues"
     },
-    "homepage": "https://github.com/yicheng340/isomer-travisci-test#readme"
+    "homepage": "https://github.com/yicheng340/isomer-travisci-test#readme",
+    "dependencies": {
+        "request": "^2.88.0"
+    }
 }
