@@ -5,10 +5,10 @@ const testSuiteHandler = require("./test_suite/testSuiteHandler.js");
 
 testsFailed = testSuiteHandler.startTests();
 
-if(!testsFailed) {
+if(testsFailed) {
     var clientServerOptions = {
         uri: SLACK_URI,
-        body: "{\"text\":\"" + testsFailed +"\"}",
+        body: "{\"text\":\"" + testsFailed + "\"}",
         method: "POST",
         headers: {
             'Content-Type': 'application/json'
