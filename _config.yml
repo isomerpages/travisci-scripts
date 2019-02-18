@@ -8,6 +8,7 @@ url: "" # the base hostname & protocol for your site, e.g. http://example.com
 markdown: kramdown
 remote_theme: isomerpages/isomerpages-template
 safe: false
+exclude: [travis-script.js, .travis.yml, README.md, package.json, package-lock.json, test_suite]
 
 plugins:
   - jekyll-feed
