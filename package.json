@@ -19,5 +19,8 @@
     "homepage": "https://github.com/yicheng340/isomer-travisci-test#readme",
     "dependencies": {
         "request": "^2.88.0"
+    },
+    "devDependencies": {
+        "markdownlint": "^0.12.0"
     }
 }

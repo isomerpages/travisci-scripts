@@ -2,6 +2,7 @@ const resourceRoomName = "news";
 
 const fs = require("fs");
 const checkHeader = require("./markdown/checkHeader.js");
+const checkMarkdown = require("./markdown/checkMarkdown.js");
 
 module.exports = {
     runTest: function(filePath) {
@@ -26,8 +27,19 @@ module.exports = {
 
         checkHeaderResult = checkHeader.hasError(data, type, filePath);
         if(checkHeaderResult) {
-            return checkHeaderResult;
+            hasErrors = true;
+            consolidatedMessage += checkHeaderResult;
         }
-        return false;
+
+        checkMarkdownResult = checkMarkdown.hasError(data, type, filePath);
+        if(checkMarkdownResult) {
+            hasErrors = true;
+            consolidatedMessage += checkMarkdownResult;
+        }
+
+        if(hasErrors)
+            return consolidatedMessage;
+        else
+            return false;
     }
 }

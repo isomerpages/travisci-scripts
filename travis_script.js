@@ -19,6 +19,5 @@ if(testsFailed) {
             //oh no the message didn't go through to Slack
             throw new Error("The message didn't go through to Slack!\n" + error);
         }
-        console.log(clientServerOptions);
     });
 }
