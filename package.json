@@ -21,6 +21,7 @@
         "request": "^2.88.0"
     },
     "devDependencies": {
+        "js-yaml": "^3.12.1",
         "markdownlint": "^0.12.0"
     }
 }

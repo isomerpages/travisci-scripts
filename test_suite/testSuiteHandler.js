@@ -9,7 +9,8 @@ const ignores = ["README.md", "node_modules"];
 const checkHiddens = false;
 
 const fs = require("fs");
-const markdownHandler = require('./markdownHandler.js');
+const markdownHandler = require("./markdownHandler.js");
+const yamlHandler = require("./yamlHandler.js");
 
 var errorMessage = "";
 var fileCount = 0;
@@ -42,6 +43,15 @@ function readDirectory(path = ".") {
                     errorMessage += checkResult.errorMessage;
                 }
                 permalinks = permalinks.concat(checkResult.permalinks);
+            }
+
+            if(file.name.endsWith(".yaml") || file.name.endsWith(".yml")) {
+                fileCount++;
+                var checkResult = yamlHandler.runTest(fullPath);
+                if(checkResult.hasError) {
+                    errorCount++;
+                    errorMessage += checkResult.errorMessage;
+                }
             }
         }
     });

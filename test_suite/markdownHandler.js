@@ -7,8 +7,6 @@ const checkMarkdown = require("./markdown/checkMarkdown.js");
 module.exports = {
     runTest: function(filePath, permalinks) {
         data = fs.readFileSync(filePath, "utf-8");
-        var hasErrors = false;
-        var consolidatedMessage = ""; //we could have more than 1 error
         
         //find out what type of page it is
         //the home page (index.md) is a type 1 page
