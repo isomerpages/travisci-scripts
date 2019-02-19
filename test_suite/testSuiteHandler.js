@@ -15,10 +15,13 @@ var errorMessage = "";
 var fileCount = 0;
 var errorCount = 0;
 
+var permalinks = [];
+
 //iterates through the root directory of the repo and
 //runs the appropriate check for the file type
 function readDirectory(path = ".") {
     files = fs.readdirSync(path, {"withFileTypes": true});
+
     files.forEach(function (file) {
         if(!checkHiddens && file.name.startsWith("."))
             return;
@@ -33,11 +36,12 @@ function readDirectory(path = ".") {
         else if(file.isFile()) {
             if(file.name.endsWith(".md")) {
                 fileCount++;
-                var checkResult = markdownHandler.runTest(fullPath);
-                if(checkResult) {
+                var checkResult = markdownHandler.runTest(fullPath, permalinks);
+                if(checkResult.hasError) {
                     errorCount++;
-                    errorMessage += checkResult;
+                    errorMessage += checkResult.errorMessage;
                 }
+                permalinks = permalinks.concat(checkResult.permalinks);
             }
         }
     });

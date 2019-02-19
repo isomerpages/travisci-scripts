@@ -1,5 +1,34 @@
 const markdownlint = require("markdownlint");
 
+module.exports = {    
+    runTest: function(data, type, filePath) {
+        var returnObj = {
+            hasError: false,
+            errorMessage: ""
+        }
+
+        var config = defaultConfig;
+        if(type == 1) //the only type 1 page is ./index.md
+            config = homeConfig;
+        const options = {
+            strings: {
+                content: data
+            },
+            config: config
+        };
+        const results = markdownlint.sync(options);
+        if(results.content.length > 0) {
+            //meaning there are more than 0 errors
+            //start processing it and present it in a more user friendly format
+            returnObj.hasError = true;
+            for(i=0;i<results.content.length;i++) {
+                returnObj.errorMessage += "\n" + filePath.substring(1) + " (Line " + results.content[i].lineNumber + ")" + userFriendlyErrorMessages[results.content[i].ruleNames[0]];
+            }
+        }
+        return returnObj;
+    }
+}
+
 const homeConfig = {
     default: true, //enables all rules except those specifically disabled
     MD013: false, //disables maximum line length rule
@@ -65,31 +94,4 @@ const userFriendlyErrorMessages = {
 	MD043: " does not seem to abide by the specified heading structure. This rule should not appear. You may ignore this message safely",
 	MD044: " does not seem to abide by required name capitalization rules. This rule should not appear. You may ignore this message safely",
 	MD045: " has an image without an \"alt\" text, which is a brief description of the image that helps the visually impaired to know what the image is about. You can add it as follows: `![Alternate text](image.jpg)`",
-}
-
-module.exports = {
-    hasError: function(data, type, filePath) {
-        var config = defaultConfig;
-        if(type == 1)
-            config = homeConfig;
-        const options = {
-            strings: {
-                content: data
-            },
-            config: config
-        };
-        const results = markdownlint.sync(options);
-        if(results.content.length > 0) {
-            //meaning there are more than 0 errors
-            //start processing it and present it in a more user friendly format
-
-            var errorMessage = "";
-            for(i=0;i<results.content.length;i++) {
-                errorMessage += "\n" + filePath.substring(1) + " (Line " + results.content[i].lineNumber + ")" + userFriendlyErrorMessages[results.content[i].ruleNames[0]];
-            }
-            return errorMessage;
-        }
-        else
-            return false;
-    }
 }

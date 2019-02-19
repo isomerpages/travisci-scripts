@@ -3,10 +3,14 @@ module.exports = {
     //type 2 pages are those under a left_nav
     //type 3 pages are resource room pages
     //type 4 pages are those by themselves (e.g. privacy.md and includes misc/search.md)
-    hasError: function(data, type, filePath) {
-        var errorMessage = "";
+    runTest: function(data, type, filePath, permalinks) {
         var errorMessageHold = "";
-        var hasErrors = false;
+        
+        var returnObj = {
+            permalinks: [],
+            hasError: false,
+            errorMessage: ""
+        }
         
         const errorHeader = "\n" + filePath.substring(1) + " ";
 
@@ -15,11 +19,11 @@ module.exports = {
 
         //then we make sure that there are 3 dashes at the start
         if(!lines[0].startsWith("---") || lines[0].length != 3) {
-            errorMessage += errorHeader + "needs to have exactly 3 dashes (---) at the start. Make sure this is there, and that the headers like layout and title are on a new line.";
-            hasErrors = true;
+            returnObj.errorMessage += errorHeader + "needs to have exactly 3 dashes (---) at the start. Make sure this is there, and that the headers like layout and title are on a new line.";
+            returnObj.hasError = true;
         }
 
-        //now we check for the fields required in the header
+        //these flag which headers are present and which aren't
         var layoutPresent = false;
         var titlePresent = false;
         var permalinkPresent = false;
@@ -27,15 +31,19 @@ module.exports = {
         var datePresent = false;
         var collectionNamePresent = false;
 
-        //now for each line we make sure the header is valid
+        //we declare i outside the loop because we will be using its
+        //value after the loop: at that point i will be at the line with
+        //the second set of triple dashes
         var i;
+        
+        //now for each line we make sure the header is valid
         for(i = 1;i < lines.length && !lines[i].startsWith("---");i++) {
             //i know this is the same code duplicated lots of times
-            //but i wrote it this way for future flexibility
+            //but i wrote it this way so that we are able to customize the message text finely
             if(lines[i].startsWith("layout: ")) {
                 if(layoutPresent) {
-                    errorMessage += errorHeader + "has another \"layout: \" field at line " + (i+1) + ". Only 1 layout field is needed for each page. You should remove all the excess layout field(s) from this file.";
-                    hasErrors = true;
+                    returnObj.errorMessage += errorHeader + "has another \"layout: \" field at line " + (i+1) + ". Only 1 layout field is needed for each page. You should remove all the excess layout field(s) from this file.";
+                    returnObj.hasError = true;
                     continue;
                 }
                 else {
@@ -45,8 +53,8 @@ module.exports = {
             }
             else if(lines[i].startsWith("title: ")) {
                 if(titlePresent) {
-                    errorMessage += errorHeader + "has another \"title: \" field at line " + (i+1) + ". Only 1 title field is needed for each page. You should remove all the excess title field(s) from this file.";
-                    hasErrors = true;
+                    returnObj.errorMessage += errorHeader + "has another \"title: \" field at line " + (i+1) + ". Only 1 title field is needed for each page. You should remove all the excess title field(s) from this file.";
+                    returnObj.hasError = true;
                     continue;
                 }
                 else {
@@ -56,82 +64,102 @@ module.exports = {
             }
             else if(lines[i].startsWith("permalink: ")) {
                 if(permalinkPresent) {
-                    errorMessage += errorHeader + "has another \"permalink: \" field at line " + (i+1) + ". Only 1 permalink field is needed for each page. You should remove all the excess permalink field(s) from this file.";
-                    hasErrors = true;
+                    returnObj.errorMessage += errorHeader + "has another \"permalink: \" field at line " + (i+1) + ". Only 1 permalink field is needed for each page. You should remove all the excess permalink field(s) from this file.";
+                    returnObj.hasError = true;
                     continue;
                 }
                 else {
                     //TODO: check for duplicated permalinks with other pages as well
+                    permalink = lines[i].substring(11); //11 is the string length of "permalink: "
+                    
+                    if(permalink.length == 0) {
+                        //uh oh no permalink
+                        returnObj.errorMessage += errorHeader + "has a \"permalink: \" field at line " + (i+1) + " but has no permalink. Please enter one as a permalink is needed for the page to be properly accessed. An example is `/news/press-releases/test/`";
+                        returnObj.hasError = true;
+                    }
+                    else {
+                        for(j=0;j<permalinks.length;j++) {
+                            if(permalink == permalinks[j].link) {
+                                returnObj.errorMessage += errorHeader + "has the same permalink as " + permalinks[i].filePath + ". Please change the permalink in either one of the files so that both pages can be properly accessed";
+                                returnObj.hasError = true;
+                            }
+                        }
+                        returnObj.permalinks.push({
+                            link: permalink,
+                            filePath: filePath.substring(1)
+                        });
+                    }
                     permalinkPresent = true;
                     continue;
                 }
             }
             else if(lines[i].startsWith("breadcrumb: ")) {
                 if(breadcrumbPresent) {
-                    errorMessage += errorHeader + "has another \"breadcrumb :\" field at line " + (i+1);
+                    returnObj.errorMessage += errorHeader + "has another \"breadcrumb :\" field at line " + (i+1);
 
                     if(type == 3 || type == 1) {
-                        errorMessage += ". This page does not need a breadcrumb field at all. You should remove this line from this file.";
+                        returnObj.errorMessage += ". This page does not need a breadcrumb field at all. You should remove this line from this file.";
                     }
                     else {
-                        errorMessage += ". Only 1 breadcrumb field is needed for this page. You should remove all the excess breadcrumb field(s) from this file";
+                        returnObj.errorMessage += ". Only 1 breadcrumb field is needed for this page. You should remove all the excess breadcrumb field(s) from this file";
                     }
 
-                    hasErrors = true;
+                    returnObj.hasError = true;
                     continue;
                 }
                 else {
                     breadcrumbPresent = true;
                     if(type == 1 || type == 3) {
-                        errorMessage += errorHeader + "has a \"breadcrumb :\" field at line " + (i+1) + ". This page does not need a breadcrumb field at all. You should remove this line from this file.";
-                        hasErrors = true;
+                        returnObj.errorMessage += errorHeader + "has a \"breadcrumb :\" field at line " + (i+1) + ". This page does not need a breadcrumb field at all. You should remove this line from this file.";
+                        returnObj.hasError = true;
                     }
                     continue;
                 }
             }
             else if(lines[i].startsWith("date: ")) {
                 if(datePresent) {
-                    errorMessage += errorHeader + "has another \"date: \" field at line " + (i+1);
+                    returnObj.errorMessage += errorHeader + "has another \"date: \" field at line " + (i+1);
 
                     if(type == 3) {
-                        errorMessage += ". Only 1 date field is needed for this page. You should remove all the excess date field(s) from this file."
+                        returnObj.errorMessage += ". Only 1 date field is needed for this page. You should remove all the excess date field(s) from this file."
                     }
                     else {
-                        errorMessage += ". This page does not need a date field at all. You should remove this line from this file.";
+                        returnObj.errorMessage += ". This page does not need a date field at all. You should remove this line from this file.";
                     }
 
-                    hasErrors = true;
+                    returnObj.hasError = true;
                     continue;
                 }
                 else {
                     datePresent = true;
                     if(type != 3) {
-                        errorMessage += errorHeader + "has a \"date :\" field at line " + (i+1) + ". This page does not need a date field at all. You should remove this line from this file.";
-                        hasErrors = true;
+                        returnObj.errorMessage += errorHeader + "has a \"date :\" field at line " + (i+1) + ". This page does not need a date field at all. You should remove this line from this file.";
+                        returnObj.hasError = true;
                     }
                     continue;
                 }
             }
             else if(lines[i].startsWith("collection_name: ")) {
                 if(collectionNamePresent) {
-                    errorMessage += errorHeader + "has another \"collection_name: \" field at line " + (i+1);
+                    returnObj.errorMessage += errorHeader + "has another \"collection_name: \" field at line " + (i+1);
 
                     if(type == 2) {
-                        errorMessage += ". Only 1 collection_name field is needed for this page. You should remove all the excess collection_name field(s) from this file.";
+                        returnObj.errorMessage += ". Only 1 collection_name field is needed for this page. You should remove all the excess collection_name field(s) from this file.";
                     }
 
-                    hasErrors = true;
+                    returnObj.hasError = true;
                     continue;
                 }
                 else {
                     collectionNamePresent = true;
                     if(type != 2) {
-                        errorMessage += errorHeader + "has a \"collection_name: \" field at line " + (i+1) + ". This page does not need a collection_name field at all. You should remove this line from this file.";
-                        hasErrors = true;
+                        returnObj.errorMessage += errorHeader + "has a \"collection_name: \" field at line " + (i+1) + ". This page does not need a collection_name field at all. You should remove this line from this file.";
+                        returnObj.hasError = true;
                     }
                     continue;
                 }
             }
+            //finally if this line in the header didn't match any of the above
             //empty lines are ok, we are only worried about unrecognised non-empty ones
             else if(lines[i].length > 0) {
                 //we hold this message (i.e. unconfirmed) because it could be because the user
@@ -146,8 +174,8 @@ module.exports = {
             //good end headers
             //meaning we can put in the unrecognised header error message(s) held back (if any)
             if(errorMessageHold.length > 0) {
-                errorMessage += errorMessageHold;
-                hasErrors = true;
+                returnObj.errorMessage += errorMessageHold;
+                returnObj.hasError = true;
             }
             //make sure all the headers are here
             //type 1, home page: needs layout, title, & permalink
@@ -167,43 +195,38 @@ module.exports = {
                 headerHint = " This page needs the layout, title, permalink, and breadcrumb fields in the header to work properly."
 
             if(!layoutPresent) {
-                errorMessage += errorHeader + "is missing the layout field in the header." + headerHint;
-                hasErrors = true;
+                returnObj.errorMessage += errorHeader + "is missing the layout field in the header." + headerHint;
+                returnObj.hasError = true;
             }
             if(!titlePresent) {
-                errorMessage += errorHeader + "is missing the title field in the header." + headerHint;
-                hasErrors = true;
+                returnObj.errorMessage += errorHeader + "is missing the title field in the header." + headerHint;
+                returnObj.hasError = true;
             }
             if(!permalinkPresent) {
-                errorMessage += errorHeader + "is missing the permalink field in the header." + headerHint;
-                hasErrors = true;
+                returnObj.errorMessage += errorHeader + "is missing the permalink field in the header." + headerHint;
+                returnObj.hasError = true;
             }
             if(!breadcrumbPresent && (type == 2 || type == 4)) {
-                errorMessage += errorHeader + "is missing the breadcrumb field in the header." + headerHint;
-                hasErrors = true;
+                returnObj.errorMessage += errorHeader + "is missing the breadcrumb field in the header." + headerHint;
+                returnObj.hasError = true;
             }
             if(!collectionNamePresent && type == 2) {
-                errorMessage += errorHeader + "is missing the collection_name field in the header." + headerHint;
-                hasErrors = true;
+                returnObj.errorMessage += errorHeader + "is missing the collection_name field in the header." + headerHint;
+                returnObj.hasError = true;
             }
             if(!datePresent && type == 3) {
-                errorMessage += errorHeader + "is missing the date field in the header." + headerHint;
-                hasErrors = true;
+                returnObj.errorMessage += errorHeader + "is missing the date field in the header." + headerHint;
+                returnObj.hasError = true;
             }
         }
         else {
             //bad or non-existent end headers
-            errorMessage += errorHeader + "needs to have exactly 3 dashes (---) after all the headers (e.g. layout and title), on a new line.";
-            hasErrors = true;
+            returnObj.errorMessage += errorHeader + "needs to have exactly 3 dashes (---) after all the headers (e.g. layout and title), on a new line.";
+            returnObj.hasError = true;
         }
 
         //whew finally we are done checking headers
         //now we'll return the values for markdownHandler to handle
-        if(hasErrors) {
-            return errorMessage;
-        }
-        else {
-            return false;
-        }
+        return returnObj;
     }
 }

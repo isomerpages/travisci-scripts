@@ -5,7 +5,7 @@ const checkHeader = require("./markdown/checkHeader.js");
 const checkMarkdown = require("./markdown/checkMarkdown.js");
 
 module.exports = {
-    runTest: function(filePath) {
+    runTest: function(filePath, permalinks) {
         data = fs.readFileSync(filePath, "utf-8");
         var hasErrors = false;
         var consolidatedMessage = ""; //we could have more than 1 error
@@ -25,21 +25,13 @@ module.exports = {
         
         //this is the part where we run our suite of markdown tests
 
-        checkHeaderResult = checkHeader.hasError(data, type, filePath);
-        if(checkHeaderResult) {
-            hasErrors = true;
-            consolidatedMessage += checkHeaderResult;
-        }
+        returnObj = checkHeader.runTest(data, type, filePath, permalinks);
 
-        checkMarkdownResult = checkMarkdown.hasError(data, type, filePath);
-        if(checkMarkdownResult) {
-            hasErrors = true;
-            consolidatedMessage += checkMarkdownResult;
+        checkMarkdownResult = checkMarkdown.runTest(data, type, filePath);
+        if(checkMarkdownResult.hasError) {
+            returnObj.hasError = true;
+            returnObj.errorMessage += checkMarkdownResult.errorMessage;
         }
-
-        if(hasErrors)
-            return consolidatedMessage;
-        else
-            return false;
+        return returnObj;
     }
 }
