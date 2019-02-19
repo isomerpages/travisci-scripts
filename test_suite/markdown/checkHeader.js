@@ -42,7 +42,7 @@ module.exports = {
             //but i wrote it this way so that we are able to customize the message text finely
             if(lines[i].startsWith("layout: ")) {
                 if(layoutPresent) {
-                    returnObj.errorMessage += errorHeader + "has another \"layout: \" field at line " + (i+1) + ". Only 1 layout field is needed for each page. You should remove all the excess layout field(s) from this file.";
+                    returnObj.errorMessage += errorHeader + "has another `layout: ` field at line " + (i+1) + ". Only 1 layout field is needed for each page. You should remove all the excess layout field(s) from this file.";
                     returnObj.hasError = true;
                     continue;
                 }
@@ -53,7 +53,7 @@ module.exports = {
             }
             else if(lines[i].startsWith("title: ")) {
                 if(titlePresent) {
-                    returnObj.errorMessage += errorHeader + "has another \"title: \" field at line " + (i+1) + ". Only 1 title field is needed for each page. You should remove all the excess title field(s) from this file.";
+                    returnObj.errorMessage += errorHeader + "has another `title: ` field at line " + (i+1) + ". Only 1 title field is needed for each page. You should remove all the excess title field(s) from this file.";
                     returnObj.hasError = true;
                     continue;
                 }
@@ -64,7 +64,7 @@ module.exports = {
             }
             else if(lines[i].startsWith("permalink: ")) {
                 if(permalinkPresent) {
-                    returnObj.errorMessage += errorHeader + "has another \"permalink: \" field at line " + (i+1) + ". Only 1 permalink field is needed for each page. You should remove all the excess permalink field(s) from this file.";
+                    returnObj.errorMessage += errorHeader + "has another `permalink: ` field at line " + (i+1) + ". Only 1 permalink field is needed for each page. You should remove all the excess permalink field(s) from this file.";
                     returnObj.hasError = true;
                     continue;
                 }
@@ -74,16 +74,29 @@ module.exports = {
                     
                     if(permalink.length == 0) {
                         //uh oh no permalink
-                        returnObj.errorMessage += errorHeader + "has a \"permalink: \" field at line " + (i+1) + " but has no permalink. Please enter one as a permalink is needed for the page to be properly accessed. An example is `/news/press-releases/test/`";
+                        returnObj.errorMessage += errorHeader + "has a `permalink: ` field at line " + (i+1) + " but has no permalink. Please enter one as a permalink is needed for the page to be properly accessed. An example is `/news/press-releases/test/`";
                         returnObj.hasError = true;
                     }
                     else {
+                        //check if the permalink is duplicated
                         for(j=0;j<permalinks.length;j++) {
                             if(permalink == permalinks[j].link) {
                                 returnObj.errorMessage += errorHeader + "has the same permalink as " + permalinks[i].filePath + ". Please change the permalink in either one of the files so that both pages can be properly accessed";
                                 returnObj.hasError = true;
                             }
                         }
+
+                        //check for non-URL safe characters in the permalink
+                        //list take from https://stackoverflow.com/a/695467
+                        //the slash character (/) is excluded since it is used properly to specify the directory in the URL
+                        var unsafeChars = ["&", "$", "+", ",", ":", ";", "=", "?", "@", "#", " ", "<", ">", "[", "]", "{", "}", "|", "\\", "^", "%"];
+                        for(j=0;j<unsafeChars.length;j++) {
+                            if(permalink.includes(unsafeChars[j])) {
+                                returnObj.errorMessage += errorHeader + "has the `" + unsafeChars[j] + "` character in its permalink field at line " + (i+1) + ". This character is unsafe for use in URLs. Please remove this character, replace it with a dash (`-`), or replace it with english text (e.g. `-and-` instead of `&`)";
+                                returnObj.hasError = true;
+                            }
+                        }
+                        
                         returnObj.permalinks.push({
                             link: permalink,
                             filePath: filePath.substring(1)
@@ -95,7 +108,7 @@ module.exports = {
             }
             else if(lines[i].startsWith("breadcrumb: ")) {
                 if(breadcrumbPresent) {
-                    returnObj.errorMessage += errorHeader + "has another \"breadcrumb :\" field at line " + (i+1);
+                    returnObj.errorMessage += errorHeader + "has another `breadcrumb :` field at line " + (i+1);
 
                     if(type == 3 || type == 1) {
                         returnObj.errorMessage += ". This page does not need a breadcrumb field at all. You should remove this line from this file.";
@@ -110,7 +123,7 @@ module.exports = {
                 else {
                     breadcrumbPresent = true;
                     if(type == 1 || type == 3) {
-                        returnObj.errorMessage += errorHeader + "has a \"breadcrumb :\" field at line " + (i+1) + ". This page does not need a breadcrumb field at all. You should remove this line from this file.";
+                        returnObj.errorMessage += errorHeader + "has a `breadcrumb :` field at line " + (i+1) + ". This page does not need a breadcrumb field at all. You should remove this line from this file.";
                         returnObj.hasError = true;
                     }
                     continue;
@@ -118,7 +131,7 @@ module.exports = {
             }
             else if(lines[i].startsWith("date: ")) {
                 if(datePresent) {
-                    returnObj.errorMessage += errorHeader + "has another \"date: \" field at line " + (i+1);
+                    returnObj.errorMessage += errorHeader + "has another `date: ` field at line " + (i+1);
 
                     if(type == 3) {
                         returnObj.errorMessage += ". Only 1 date field is needed for this page. You should remove all the excess date field(s) from this file."
@@ -133,7 +146,7 @@ module.exports = {
                 else {
                     datePresent = true;
                     if(type != 3) {
-                        returnObj.errorMessage += errorHeader + "has a \"date :\" field at line " + (i+1) + ". This page does not need a date field at all. You should remove this line from this file.";
+                        returnObj.errorMessage += errorHeader + "has a `date :` field at line " + (i+1) + ". This page does not need a date field at all. You should remove this line from this file.";
                         returnObj.hasError = true;
                     }
                     continue;
@@ -141,7 +154,7 @@ module.exports = {
             }
             else if(lines[i].startsWith("collection_name: ")) {
                 if(collectionNamePresent) {
-                    returnObj.errorMessage += errorHeader + "has another \"collection_name: \" field at line " + (i+1);
+                    returnObj.errorMessage += errorHeader + "has another `collection_name: ` field at line " + (i+1);
 
                     if(type == 2) {
                         returnObj.errorMessage += ". Only 1 collection_name field is needed for this page. You should remove all the excess collection_name field(s) from this file.";
@@ -153,7 +166,7 @@ module.exports = {
                 else {
                     collectionNamePresent = true;
                     if(type != 2) {
-                        returnObj.errorMessage += errorHeader + "has a \"collection_name: \" field at line " + (i+1) + ". This page does not need a collection_name field at all. You should remove this line from this file.";
+                        returnObj.errorMessage += errorHeader + "has a `collection_name: ` field at line " + (i+1) + ". This page does not need a collection_name field at all. You should remove this line from this file.";
                         returnObj.hasError = true;
                     }
                     continue;
