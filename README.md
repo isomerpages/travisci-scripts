@@ -74,4 +74,4 @@ It does not return any value - all output is sent to standard output and Slack (
 
 `purgeCacheOnly()` is a method that does not take in any parameters. It only runs the CDN cache purger, skipping the Isomer syntax checker.
 
-It does not return any value - all output is sent to standard output and Slack (if enabled).
+It does not return any value. Errors during execution, if any, are sent to standard output only.
