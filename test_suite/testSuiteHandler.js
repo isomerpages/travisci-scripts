@@ -1,10 +1,8 @@
 //iterates through the project directory and runs
 //the respective shell commands for each file
 
-//besides ignores and checkHiddens in this file, remember to configure resourceRoomName in markdownHandler.js as well!
-
 //full name of files/folders where checks are to be skipped
-const ignores = ["README.md", "node_modules"];
+const ignores = ["README.md", "node_modules", "Readme.md", "readme.md"];
 
 //should hidden files and directories (i.e. names
 //beginning with '.') be checked?
@@ -14,7 +12,6 @@ const fs = require("fs");
 const markdownHandler = require("./markdownHandler.js");
 const yamlHandler = require("./yamlHandler.js");
 const request = require("request");
-const SLACK_URI = process.env.SLACK_URI;
 
 var errorMessage = "";
 var fileCount = 0;
@@ -65,7 +62,7 @@ module.exports = {
     //starts the test suite
     //returns the string to be sent to Slack should there be errors
     //returns false otherwise (i.e. all files are good)
-    startTests: function()
+    startTests: function(sendSlack)
     {
         readDirectory();
         console.log("Number of files checked: " + fileCount);
@@ -78,23 +75,24 @@ module.exports = {
             errorOutput = "Hey, I've found errors in these " + errorCount + " files:" + errorMessage;
         }
         if(errorCount > 0) {
-            console.log("Message to be sent to Slack:");
             console.log(errorOutput);
-
-            var clientServerOptions = {
-                uri: SLACK_URI,
-                body: "{\"text\": " + JSON.stringify(errorOutput) + "}",
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
+            if(sendSlack) {
+                const SLACK_URI = process.env.SLACK_URI;
+                var clientServerOptions = {
+                    uri: SLACK_URI,
+                    body: "{\"text\": " + JSON.stringify(errorOutput) + "}",
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 }
+                request(clientServerOptions, function (error) {
+                    if(error) {
+                        //oh no the message didn't go through to Slack
+                        throw new Error("The message didn't go through to Slack!\n" + error);
+                    }
+                });
             }
-            request(clientServerOptions, function (error) {
-                if(error) {
-                    //oh no the message didn't go through to Slack
-                    throw new Error("The message didn't go through to Slack!\n" + error);
-                }
-            });
         }
         return;
     }

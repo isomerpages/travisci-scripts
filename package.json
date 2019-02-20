@@ -1,26 +1,28 @@
 {
-    "name": "isomerpages-travisci-scripts",
-    "version": "0.0.1",
-    "description": "A set of scripts that facilitates the production and deployment of Isomer pages",
-    "main": "test_suite/index.js",
-    "scripts": {
-        "test": "node travis-script.js"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/yicheng340/isomer-travisci-scripts.git"
-    },
-    "keywords": ["isomer", "isomerpages"],
-    "author": "Li Yicheng",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/yicheng340/isomer-travisci-scripts/issues"
-    },
-    "homepage": "https://github.com/yicheng340/isomer-travisci-scripts#readme",
-    "dependencies": {
-        "js-yaml": "^3.12.1",
-        "markdownlint": "^0.12.0",
-        "request": "^2.88.0"
-    },
-    "devDependencies": {}
+  "name": "@liyicheng/isomerpages-travisci-scripts",
+  "version": "1.0.0",
+  "description": "A set of scripts that facilitates the production and deployment of Isomer pages",
+  "main": "test_suite/index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yicheng340/isomer-travisci-scripts.git"
+  },
+  "keywords": [
+    "isomer",
+    "isomerpages"
+  ],
+  "author": "Li Yicheng",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yicheng340/isomer-travisci-scripts/issues"
+  },
+  "homepage": "https://github.com/yicheng340/isomer-travisci-scripts#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "js-yaml": "^3.12.1",
+    "markdownlint": "^0.12.0",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {}
 }
