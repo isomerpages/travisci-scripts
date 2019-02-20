@@ -17,6 +17,7 @@ Follow [Slack's instructions](https://api.slack.com/incoming-webhooks) for creat
 Create the file `.travis.yml` in the root directory of your repository:
 
 ```yaml
+#.travis.yml
 language: node_js
 node_js:
   - "node"
@@ -29,6 +30,7 @@ cache: npm
 Create the file `travis-script.js` in the root directory of your site repository:
 
 ```js
+//travis-script.js
 const travisScript = require("@liyicheng/isomerpages-travisci-scripts");
 const travisBranch = process.env.TRAVIS_BRANCH;
 
