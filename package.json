@@ -1,27 +1,26 @@
 {
-    "name": "isomerpages-travissci-test",
-    "version": "1.0.0",
-    "description": "## Why Markdown and YAML?",
-    "main": "index.js",
+    "name": "isomerpages-travisci-scripts",
+    "version": "0.0.1",
+    "description": "A set of scripts that facilitates the production and deployment of Isomer pages",
+    "main": "test_suite/index.js",
     "scripts": {
         "test": "node travis-script.js"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/yicheng340/isomer-travisci-test.git"
+        "url": "git+https://github.com/yicheng340/isomer-travisci-scripts.git"
     },
-    "keywords": [],
-    "author": "",
+    "keywords": ["isomer", "isomerpages"],
+    "author": "Li Yicheng",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/yicheng340/isomer-travisci-test/issues"
+        "url": "https://github.com/yicheng340/isomer-travisci-scripts/issues"
     },
-    "homepage": "https://github.com/yicheng340/isomer-travisci-test#readme",
+    "homepage": "https://github.com/yicheng340/isomer-travisci-scripts#readme",
     "dependencies": {
+        "js-yaml": "^3.12.1",
+        "markdownlint": "^0.12.0",
         "request": "^2.88.0"
     },
-    "devDependencies": {
-        "js-yaml": "^3.12.1",
-        "markdownlint": "^0.12.0"
-    }
+    "devDependencies": {}
 }
