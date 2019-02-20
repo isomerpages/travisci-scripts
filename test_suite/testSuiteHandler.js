@@ -1,6 +1,8 @@
 //iterates through the project directory and runs
 //the respective shell commands for each file
 
+//besides ignores and checkHiddens in this file, remember to configure resourceRoomName in markdownHandler.js as well!
+
 //full name of files/folders where checks are to be skipped
 const ignores = ["README.md", "node_modules"];
 
@@ -11,6 +13,8 @@ const checkHiddens = false;
 const fs = require("fs");
 const markdownHandler = require("./markdownHandler.js");
 const yamlHandler = require("./yamlHandler.js");
+const request = require("request");
+const SLACK_URI = process.env.SLACK_URI;
 
 var errorMessage = "";
 var fileCount = 0;
@@ -66,20 +70,32 @@ module.exports = {
         readDirectory();
         console.log("Number of files checked: " + fileCount);
         console.log("Number of files with errors: " + errorCount);
+        errorOutput = "";
         if(errorCount == 1) {
             errorOutput = "Hey, this file doesn't look right:" + errorMessage;
-            console.log("Message to be sent to Slack:");
-            console.log(errorOutput);
-            return errorOutput;
         }
         else if(errorCount > 1) {
             errorOutput = "Hey, I've found errors in these " + errorCount + " files:" + errorMessage;
+        }
+        if(errorCount > 0) {
             console.log("Message to be sent to Slack:");
             console.log(errorOutput);
-            return errorOutput;
+
+            var clientServerOptions = {
+                uri: SLACK_URI,
+                body: "{\"text\": " + JSON.stringify(errorOutput) + "}",
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+            request(clientServerOptions, function (error) {
+                if(error) {
+                    //oh no the message didn't go through to Slack
+                    throw new Error("The message didn't go through to Slack!\n" + error);
+                }
+            });
         }
-        else {
-            return false;
-        }
+        return;
     }
 }

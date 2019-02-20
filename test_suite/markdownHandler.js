@@ -1,6 +1,15 @@
-const resourceRoomName = "news";
-
 const fs = require("fs");
+
+//i know this is a frankenstein line of code but trust me it should work
+//1 it reads the file /_data/homepage.yml
+//2 the data in the file is loaded as a js object using the js-yaml library
+//3 it pulls the value for resources-more-button-url
+//4 it runs the regex on the value to get e.g. "desiredtext" in "desiredtext/junk/?morejunk"
+//5 it turns the desired text to lower case
+const resourceRoomName = /\/?(.*)\//.exec(require("js-yaml").safeLoad(fs.readFileSync("./_data/homepage.yml"))["resources-more-button-url"])[1].toLowerCase();
+//enable this line instead if you prefer to not get resourceRoomName automatically or if the above line is not working
+//const resourceRoomName = "news";
+
 const checkHeader = require("./markdown/checkHeader.js");
 const checkMarkdown = require("./markdown/checkMarkdown.js");
 

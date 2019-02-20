@@ -30,6 +30,11 @@ module.exports = {
         var breadcrumbPresent = false;
         var datePresent = false;
         var collectionNamePresent = false;
+        var tagPresent = false;
+        var thumbnailImagePresent = false;
+        var imagePresent = false;
+        var categoryPresent = false;
+        var descriptionPresent = false;
 
         //we declare i outside the loop because we will be using its
         //value after the loop: at that point i will be at the line with
@@ -79,9 +84,10 @@ module.exports = {
                     }
                     else {
                         //check if the permalink is duplicated
+                        //permalink = permalink.replace(/"/g, "");
                         for(j=0;j<permalinks.length;j++) {
                             if(permalink == permalinks[j].link) {
-                                returnObj.errorMessage += errorHeader + "has the same permalink as " + permalinks[i].filePath + ". Please change the permalink in either one of the files so that both pages can be properly accessed";
+                                returnObj.errorMessage += errorHeader + "has the same permalink as " + permalinks[j].filePath + ". Please change the permalink in either one of the files so that both pages can be properly accessed";
                                 returnObj.hasError = true;
                             }
                         }
@@ -172,9 +178,65 @@ module.exports = {
                     continue;
                 }
             }
+            else if(lines[i].startsWith("tag: ")) {
+                if(tagPresent) {
+                    returnObj.errorMessage += errorHeader + "has another `tag: ` field at line " + (i+1);
+                    returnObj.hasError = true;
+                    continue;
+                }
+                else {
+                    tagPresent = true;
+                    continue;
+                }
+            }
+            else if(lines[i].startsWith("thumbnail_image: ")) {
+                if(thumbnailImagePresent) {
+                    returnObj.errorMessage += errorHeader + "has another `thumbnail_image: ` field at line " + (i+1);
+                    returnObj.hasError = true;
+                    continue;
+                }
+                else {
+                    thumbnailImagePresent = true;
+                    continue;
+                }
+            }
+            else if(lines[i].startsWith("image: ")) {
+                if(imagePresent) {
+                    returnObj.errorMessage += errorHeader + "has another `image: ` field at line " + (i+1);
+                    returnObj.hasError = true;
+                    continue;
+                }
+                else {
+                    imagePresent = true;
+                    continue;
+                }
+            }
+            else if(lines[i].startsWith("category: ")) {
+                if(categoryPresent) {
+                    returnObj.errorMessage += errorHeader + "has another `category: ` field at line " + (i+1);
+                    returnObj.hasError = true;
+                    continue;
+                }
+                else {
+                    categoryPresent = true;
+                    continue;
+                }
+            }
+            else if(lines[i].startsWith("description: ")) {
+                if(descriptionPresent) {
+                    returnObj.errorMessage += errorHeader + "has another `description: ` field at line " + (i+1);
+                    returnObj.hasError = true;
+                    continue;
+                }
+                else {
+                    descriptionPresent = true;
+                    continue;
+                }
+            }
             //finally if this line in the header didn't match any of the above
             //empty lines are ok, we are only worried about unrecognised non-empty ones
-            else if(lines[i].length > 0) {
+            //the regex removes all spaces (as spaces are okay)
+            else if(lines[i].replace(/\s/g, '').length > 0) {
                 //we hold this message (i.e. unconfirmed) because it could be because the user
                 //failed to put the triple dashes at the end of the header
                 errorMessageHold += errorHeader + "has an unrecognised header at line " + (i+1) + ". Check if it is a typo and whether you have left out other required headers. Remember that the text on your page can only start from the line after the second set of 3 dashes (---).";
@@ -208,27 +270,27 @@ module.exports = {
                 headerHint = " This page needs the layout, title, permalink, and breadcrumb fields in the header to work properly."
 
             if(!layoutPresent) {
-                returnObj.errorMessage += errorHeader + "is missing the layout field in the header." + headerHint;
+                returnObj.errorMessage += errorHeader + "is missing the `layout: ` field in the header." + headerHint;
                 returnObj.hasError = true;
             }
             if(!titlePresent) {
-                returnObj.errorMessage += errorHeader + "is missing the title field in the header." + headerHint;
+                returnObj.errorMessage += errorHeader + "is missing the `title: ` field in the header." + headerHint;
                 returnObj.hasError = true;
             }
             if(!permalinkPresent) {
-                returnObj.errorMessage += errorHeader + "is missing the permalink field in the header." + headerHint;
+                returnObj.errorMessage += errorHeader + "is missing the `permalink: ` field in the header." + headerHint;
                 returnObj.hasError = true;
             }
             if(!breadcrumbPresent && (type == 2 || type == 4)) {
-                returnObj.errorMessage += errorHeader + "is missing the breadcrumb field in the header." + headerHint;
+                returnObj.errorMessage += errorHeader + "is missing the `breadcrumb: ` field in the header." + headerHint;
                 returnObj.hasError = true;
             }
             if(!collectionNamePresent && type == 2) {
-                returnObj.errorMessage += errorHeader + "is missing the collection_name field in the header." + headerHint;
+                returnObj.errorMessage += errorHeader + "is missing the `collection_name: ` field in the header." + headerHint;
                 returnObj.hasError = true;
             }
             if(!datePresent && type == 3) {
-                returnObj.errorMessage += errorHeader + "is missing the date field in the header." + headerHint;
+                returnObj.errorMessage += errorHeader + "is missing the `date: ` field in the header." + headerHint;
                 returnObj.hasError = true;
             }
         }
