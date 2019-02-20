@@ -290,8 +290,12 @@ module.exports = {
                 returnObj.hasError = true;
             }
             if(!datePresent && type == 3) {
-                returnObj.errorMessage += errorHeader + "is missing the `date: ` field in the header." + headerHint;
-                returnObj.hasError = true;
+                //check whether the date is in the file name
+                //if it isn't, then we spit the date not found error
+                if(!/\/\d\d\d\d-\d\d-\d\d-.*\.md/.test(filePath)) {
+                    returnObj.errorMessage += errorHeader + "is missing the `date: ` field in the header." + headerHint;
+                    returnObj.hasError = true;
+                }
             }
         }
         else {
