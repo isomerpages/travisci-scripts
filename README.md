@@ -6,7 +6,7 @@ Specifically, it checks for syntax errors in the Markdown and YAML files used by
 
 ## Isomer Integration
 
-First, install [this package](https://www.npmjs.com/package/@liyicheng/isomerpages-travisci-scripts) as a dependency to your site repository:
+First, install [this package](https://www.npmjs.com/package/@liyicheng/isomerpages-travisci-scripts) as a dependency:
 
 ```bash
 npm install @liyicheng/isomerpages-travisci-scripts
@@ -14,7 +14,7 @@ npm install @liyicheng/isomerpages-travisci-scripts
 
 Follow [Slack's instructions](https://api.slack.com/incoming-webhooks) for creating an app with a webhook for the channel you want the script to send error messages to. Add this webhook address to your TravisCI environment as the `SLACK_URI` environmental variable. Add the `KEYCDN_API_KEY` and `KEYCDN_ZONE_ID` environmental variables as well. **Make sure all these environmental variables are hidden!**
 
-Create the file `.travis.yml` in the root directory of your repository:
+Create the file `.travis.yml` in the root directory of your site's repository:
 
 ```yaml
 #.travis.yml
@@ -27,7 +27,7 @@ script: node travis-script.js
 cache: npm
 ```
 
-Create the file `travis-script.js` in the root directory of your site repository:
+Create the file `travis-script.js` in the root directory of your site's repository:
 
 ```js
 //travis-script.js
@@ -65,6 +65,8 @@ It does not return any value - all output is sent to standard output and Slack (
 If `sendSlack` is set to `false`, the error output will not be sent to Slack. However, you can continue to see the output generated in the TravisCI build log.
 
 As its name implies, `testsOnly()` will only run the Isomer syntax checker. It should be run for commits on staging branches.
+
+Running `testsOnly(false)` is also a great way to preview the error output locally to fix any preexisting issues before deploying it on a site's repository. You don't want to suddenly send a barrage of error messages to the user's Slack channel!
 
 It does not return any value - all output is sent to standard output and Slack (if enabled).
 
