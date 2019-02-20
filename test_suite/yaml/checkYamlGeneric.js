@@ -1,0 +1,28 @@
+//for files that we do not have a test for we will just try loading the yaml file and see if there are any syntax errors
+
+const yaml = require("js-yaml");
+
+module.exports = {
+    runTest: function(data, filePath) {
+        var returnObj = {
+            hasError: false,
+            errorMessage: ""
+        }
+
+        const errorHeader = "\n" + filePath.substring(1) + " ";
+
+        //turns the yaml string into a javascript object
+        try {
+            data = yaml.safeLoad(data);
+        }
+        catch(e) {
+            //yaml.safeload() throws an exception if there are YAML syntax errors, e.g. 2 attributes with the same name
+            //we will just output the syntax error details and quit checking
+            console.log(e);
+            returnObj.errorMessage += errorHeader + e.message;
+            returnObj.hasError = true;
+            return returnObj; //no point continuing if the data isn't properly loaded
+        }
+        return returnObj;
+    }
+}
