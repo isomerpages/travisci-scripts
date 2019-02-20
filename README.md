@@ -56,7 +56,7 @@ If `sendSlack` is set to `false`, the error output will not be sent to Slack. Ho
 
 `runAll()` will run both the Isomer syntax checker and the CDN purger. It should be run when commits/merges are made in the `master` branch.
 
-It does not return any value - all output is sent to standard output and Slack (if enabled).
+It does not return any value - all output is sent to standard output and Slack (if enabled, and does not include any CDN purging errors).
 
 ### testsOnly
 
