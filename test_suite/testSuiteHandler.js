@@ -94,6 +94,12 @@ module.exports = {
                 });
             }
         }
+
+        //reset variables we previously used
+        errorMessage = "";
+        fileCount = 0;
+        errorCount = 0;
+        permalinks = [];
         return;
     }
 }

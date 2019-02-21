@@ -1,6 +1,6 @@
 {
   "name": "@liyicheng/isomerpages-travisci-scripts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A set of scripts that facilitates the production and deployment of Isomer pages",
   "main": "test_suite/index.js",
   "scripts": {},
