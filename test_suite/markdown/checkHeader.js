@@ -12,240 +12,146 @@ module.exports = {
             errorMessage: ""
         }
         
-        const errorHeader = "\n" + filePath.substring(1) + " ";
+        const errorHeader = "\n`" + filePath.substring(1) + "` ";
 
         //first we run this regex to split data line by line
         lines = data.split(/(?:\r\n|\r|\n)/g);
 
         //then we make sure that there are 3 dashes at the start
         if(!lines[0].startsWith("---") || lines[0].length != 3) {
-            returnObj.errorMessage += errorHeader + "needs to have exactly 3 dashes (---) at the start. Make sure this is there, and that the headers like layout and title are on a new line.";
+            returnObj.errorMessage += errorHeader + "needs to have exactly 3 dashes (`---`) at the start. Make sure this is there, and that the headers like layout and title are on a new line.";
             returnObj.hasError = true;
         }
+        // Numbering:     0         1          2            3          4             5            6           7              8           9               10                11             12          13
+        var headers = ["layout", "title", "permalink", "breadcrumb", "date", "collection_name", "tag", "thumbnail_image", "image", "description", "second_nav_title", "last_updated", "category", "file_url"];
+        
+        //this flag which headers are present and which aren't
+        var headerPresent = [];
+        for(i=0;i<headers.length;i++)
+            headerPresent.push(false);
 
-        //these flag which headers are present and which aren't
-        var layoutPresent = false;
-        var titlePresent = false;
-        var permalinkPresent = false;
-        var breadcrumbPresent = false;
-        var datePresent = false;
-        var collectionNamePresent = false;
-        var tagPresent = false;
-        var thumbnailImagePresent = false;
-        var imagePresent = false;
-        var categoryPresent = false;
-        var descriptionPresent = false;
-
-        //we declare i outside the loop because we will be using its
+        //we declare lineNumber outside the loop because we will be using its
         //value after the loop: at that point i will be at the line with
         //the second set of triple dashes
-        var i;
+        var lineNumber;
         
         //now for each line we make sure the header is valid
-        for(i = 1;i < lines.length && !lines[i].startsWith("---");i++) {
-            //i know this is the same code duplicated lots of times
-            //but i wrote it this way so that we are able to customize the message text finely
-            if(lines[i].startsWith("layout: ")) {
-                if(layoutPresent) {
-                    returnObj.errorMessage += errorHeader + "has another `layout: ` field at line " + (i+1) + ". Only 1 layout field is needed for each page. You should remove all the excess layout field(s) from this file.";
-                    returnObj.hasError = true;
-                    continue;
-                }
-                else {
-                    layoutPresent = true;
-                    continue;
-                }
-            }
-            else if(lines[i].startsWith("title: ")) {
-                if(titlePresent) {
-                    returnObj.errorMessage += errorHeader + "has another `title: ` field at line " + (i+1) + ". Only 1 title field is needed for each page. You should remove all the excess title field(s) from this file.";
-                    returnObj.hasError = true;
-                    continue;
-                }
-                else {
-                    titlePresent = true;
-                    continue;
-                }
-            }
-            else if(lines[i].startsWith("permalink: ")) {
-                if(permalinkPresent) {
-                    returnObj.errorMessage += errorHeader + "has another `permalink: ` field at line " + (i+1) + ". Only 1 permalink field is needed for each page. You should remove all the excess permalink field(s) from this file.";
-                    returnObj.hasError = true;
-                    continue;
-                }
-                else {
-                    //TODO: check for duplicated permalinks with other pages as well
-                    permalink = lines[i].substring(11); //11 is the string length of "permalink: "
-                    
-                    if(permalink.length == 0) {
-                        //uh oh no permalink
-                        returnObj.errorMessage += errorHeader + "has a `permalink: ` field at line " + (i+1) + " but has no permalink. Please enter one as a permalink is needed for the page to be properly accessed. An example is `/news/press-releases/test/`";
+        for(lineNumber = 1;lineNumber < lines.length && !lines[lineNumber].startsWith("---");lineNumber++) {
+            var lineMatchesHeader = false;
+            for(i=0;i<headers.length;i++) {
+                if(lines[lineNumber].startsWith(headers[i] + ": ")) {
+                    lineMatchesHeader = true;
+                    if(headerPresent[i]) {
+                        //if the header was duplicated:
+                        returnObj.errorMessage += errorHeader + "has another `" + headers[i] + ": ` field at *Line " + (lineNumber+1) + "*.";
                         returnObj.hasError = true;
-                    }
-                    else {
-                        //check if the permalink is duplicated
-                        //permalink = permalink.replace(/"/g, "");
-                        for(j=0;j<permalinks.length;j++) {
-                            if(permalink == permalinks[j].link) {
-                                returnObj.errorMessage += errorHeader + "has the same permalink as " + permalinks[j].filePath + ". Please change the permalink in either one of the files so that both pages can be properly accessed";
-                                returnObj.hasError = true;
+
+                        //from here on we give specific additional info here when possible for the users' benefit
+                        if(i == 0 || i == 1 || i == 2)
+                            returnObj.errorMessage += " Only 1 " + headers[i] + " field is needed for each page. You should remove all the excess " + headers[i] + " field(s) from this file.";
+
+                        if(i == 3) {
+                            if(type == 3 || type == 1) {
+                                returnObj.errorMessage += " This page does not need a breadcrumb field at all. You should remove this line from this file.";
+                            }
+                            else {
+                                returnObj.errorMessage += " Only 1 breadcrumb field is needed for this page. You should remove all the excess breadcrumb field(s) from this file";
                             }
                         }
 
-                        //check for non-URL safe characters in the permalink
-                        //list take from https://stackoverflow.com/a/695467
-                        //the slash character (/) is excluded since it is used properly to specify the directory in the URL
-                        var unsafeChars = ["&", "$", "+", ",", ":", ";", "=", "?", "@", "#", " ", "<", ">", "[", "]", "{", "}", "|", "\\", "^", "%"];
-                        for(j=0;j<unsafeChars.length;j++) {
-                            if(permalink.includes(unsafeChars[j])) {
-                                returnObj.errorMessage += errorHeader + "has the `" + unsafeChars[j] + "` character in its permalink field at line " + (i+1) + ". This character is unsafe for use in URLs. Please remove this character, replace it with a dash (`-`), or replace it with english text (e.g. `-and-` instead of `&`)";
-                                returnObj.hasError = true;
+                        if(i == 4) {
+                            if(type == 3) {
+                                returnObj.errorMessage += " Only 1 date field is needed for this page. You should remove all the excess date field(s) from this file."
+                            }
+                            else {
+                                returnObj.errorMessage += " This page does not need a date field at all. You should remove this line from this file.";
                             }
                         }
+
+                        if(i == 5) {
+                            if(type == 2) {
+                                returnObj.errorMessage += " Only 1 collection_name field is needed for this page. You should remove all the excess collection_name field(s) from this file.";
+                            }
+                            else {
+                                returnObj.errorMessage += " This page does not need a collection_name field at all. You should remove this line from this file.";
+                            }
+                        }
+                    }
+                    else {
+                        //it is not a duplicated header
+                        headerPresent[i] = true;
+
+                        //from here on we check if there are any issues with the header specifically: e.g. bad value/header that shouldn't be there is there etc
                         
-                        returnObj.permalinks.push({
-                            link: permalink,
-                            filePath: filePath.substring(1)
-                        });
-                    }
-                    permalinkPresent = true;
-                    continue;
-                }
-            }
-            else if(lines[i].startsWith("breadcrumb: ")) {
-                if(breadcrumbPresent) {
-                    returnObj.errorMessage += errorHeader + "has another `breadcrumb :` field at line " + (i+1);
+                        //permalink check: is it empty? is it duplicated? character URL safe?
+                        if(i == 2) {
+                            //check if the permalink characters are URL safe and check for duplicated permalinks
+                            permalink = lines[lineNumber].substring(11); //11 is the string length of "permalink: "
+                    
+                            if(permalink.length == 0) {
+                                //uh oh no permalink
+                                returnObj.errorMessage += errorHeader + "has a `permalink: ` field at *Line " + (lineNumber+1) + "* but has no permalink. Please enter one as a permalink is needed for the page to be properly accessed. An example is `/news/press-releases/test/`";
+                                returnObj.hasError = true;
+                            }
+                            else {
+                                //check if the permalink is duplicated
+                                //permalink = permalink.replace(/"/g, "");
+                                for(j=0;j<permalinks.length;j++) {
+                                    if(permalink == permalinks[j].link) {
+                                        returnObj.errorMessage += errorHeader + "has the same permalink as `" + permalinks[j].filePath + "`. Please change the permalink in either one of the files so that both pages can be properly accessed";
+                                        returnObj.hasError = true;
+                                    }
+                                }
 
-                    if(type == 3 || type == 1) {
-                        returnObj.errorMessage += ". This page does not need a breadcrumb field at all. You should remove this line from this file.";
-                    }
-                    else {
-                        returnObj.errorMessage += ". Only 1 breadcrumb field is needed for this page. You should remove all the excess breadcrumb field(s) from this file";
-                    }
+                                //check for non-URL safe characters in the permalink
+                                //list take from https://stackoverflow.com/a/695467
+                                //the slash character (/) is excluded since it is used properly to specify the directory in the URL
+                                var unsafeChars = ["&", "$", "+", ",", ":", ";", "=", "?", "@", "#", "<", ">", "[", "]", "{", "}", "|", "\\", "^", "%"];
+                                for(j=0;j<unsafeChars.length;j++) {
+                                    if(permalink.includes(unsafeChars[j])) {
+                                        returnObj.errorMessage += errorHeader + "has the `" + unsafeChars[j] + "` character in its permalink field at *Line " + (lineNumber+1) + "*. This character is unsafe for use in URLs. Please remove this character, replace it with a dash (`-`), or replace it with english text (e.g. `-and-` instead of `&`)";
+                                        returnObj.hasError = true;
+                                    }
+                                }
+                                
+                                returnObj.permalinks.push({
+                                    link: permalink,
+                                    filePath: filePath.substring(1)
+                                });
+                            }
+                        }
 
-                    returnObj.hasError = true;
-                    continue;
-                }
-                else {
-                    breadcrumbPresent = true;
-                    if(type == 1 || type == 3) {
-                        returnObj.errorMessage += errorHeader + "has a `breadcrumb :` field at line " + (i+1) + ". This page does not need a breadcrumb field at all. You should remove this line from this file.";
-                        returnObj.hasError = true;
-                    }
-                    continue;
-                }
-            }
-            else if(lines[i].startsWith("date: ")) {
-                if(datePresent) {
-                    returnObj.errorMessage += errorHeader + "has another `date: ` field at line " + (i+1);
+                        if(i == 3 && (type == 1 || type == 3)) {
+                            returnObj.errorMessage += errorHeader + "has a `breadcrumb :` field at *Line " + (lineNumber+1) + "*. This page does not need a breadcrumb field at all. You should remove this line from this file.";
+                            returnObj.hasError = true;
+                        }
 
-                    if(type == 3) {
-                        returnObj.errorMessage += ". Only 1 date field is needed for this page. You should remove all the excess date field(s) from this file."
-                    }
-                    else {
-                        returnObj.errorMessage += ". This page does not need a date field at all. You should remove this line from this file.";
-                    }
+                        if(i == 4 && type != 3) {
+                            returnObj.errorMessage += errorHeader + "has a `date: ` field at *Line " + (lineNumber+1) + "*. This page does not need a date field at all. You should remove this line from this file.";
+                            returnObj.hasError = true;
+                        }
 
-                    returnObj.hasError = true;
-                    continue;
-                }
-                else {
-                    datePresent = true;
-                    if(type != 3) {
-                        returnObj.errorMessage += errorHeader + "has a `date :` field at line " + (i+1) + ". This page does not need a date field at all. You should remove this line from this file.";
-                        returnObj.hasError = true;
+                        if(i == 5 && type != 2) {
+                            returnObj.errorMessage += errorHeader + "has a `collection_name: ` field at *Line " + (lineNumber+1) + "*. This page does not need a collection_name field at all. You should remove this line from this file.";
+                            returnObj.hasError = true;
+                        }
                     }
-                    continue;
-                }
-            }
-            else if(lines[i].startsWith("collection_name: ")) {
-                if(collectionNamePresent) {
-                    returnObj.errorMessage += errorHeader + "has another `collection_name: ` field at line " + (i+1);
-
-                    if(type == 2) {
-                        returnObj.errorMessage += ". Only 1 collection_name field is needed for this page. You should remove all the excess collection_name field(s) from this file.";
-                    }
-
-                    returnObj.hasError = true;
-                    continue;
-                }
-                else {
-                    collectionNamePresent = true;
-                    if(type != 2) {
-                        returnObj.errorMessage += errorHeader + "has a `collection_name: ` field at line " + (i+1) + ". This page does not need a collection_name field at all. You should remove this line from this file.";
-                        returnObj.hasError = true;
-                    }
-                    continue;
-                }
-            }
-            else if(lines[i].startsWith("tag: ")) {
-                if(tagPresent) {
-                    returnObj.errorMessage += errorHeader + "has another `tag: ` field at line " + (i+1);
-                    returnObj.hasError = true;
-                    continue;
-                }
-                else {
-                    tagPresent = true;
-                    continue;
-                }
-            }
-            else if(lines[i].startsWith("thumbnail_image: ")) {
-                if(thumbnailImagePresent) {
-                    returnObj.errorMessage += errorHeader + "has another `thumbnail_image: ` field at line " + (i+1);
-                    returnObj.hasError = true;
-                    continue;
-                }
-                else {
-                    thumbnailImagePresent = true;
-                    continue;
-                }
-            }
-            else if(lines[i].startsWith("image: ")) {
-                if(imagePresent) {
-                    returnObj.errorMessage += errorHeader + "has another `image: ` field at line " + (i+1);
-                    returnObj.hasError = true;
-                    continue;
-                }
-                else {
-                    imagePresent = true;
-                    continue;
-                }
-            }
-            else if(lines[i].startsWith("category: ")) {
-                if(categoryPresent) {
-                    returnObj.errorMessage += errorHeader + "has another `category: ` field at line " + (i+1);
-                    returnObj.hasError = true;
-                    continue;
-                }
-                else {
-                    categoryPresent = true;
-                    continue;
-                }
-            }
-            else if(lines[i].startsWith("description: ")) {
-                if(descriptionPresent) {
-                    returnObj.errorMessage += errorHeader + "has another `description: ` field at line " + (i+1);
-                    returnObj.hasError = true;
-                    continue;
-                }
-                else {
-                    descriptionPresent = true;
-                    continue;
+                    break;
                 }
             }
             //finally if this line in the header didn't match any of the above
             //empty lines are ok, we are only worried about unrecognised non-empty ones
             //the regex removes all spaces (as spaces are okay)
-            else if(lines[i].replace(/\s/g, '').length > 0) {
+            if(!lineMatchesHeader && lines[lineNumber].replace(/\s/g, '').length > 0) {
                 //we hold this message (i.e. unconfirmed) because it could be because the user
                 //failed to put the triple dashes at the end of the header
-                errorMessageHold += errorHeader + "has an unrecognised header at line " + (i+1) + ". Check if it is a typo and whether you have left out other required headers. Remember that the text on your page can only start from the line after the second set of 3 dashes (---).";
+                errorMessageHold += errorHeader + "has an unrecognised header at *Line " + (lineNumber+1) + "* (`" + lines[lineNumber] + "`). Check if it is a typo and whether you have left out other required headers. Remember that the text on your page can only start from the line after the second set of 3 dashes (`---`).";
             }
         }
 
         //now that we have reached the end we make sure it has 3 dashes
         //and we make sure the headers we need are here
-        if(i < lines.length && lines[i].startsWith("---") && lines[i].length == 3) {
+        if(lineNumber < lines.length && lines[lineNumber].startsWith("---") && lines[lineNumber].length == 3) {
             //good end headers
             //meaning we can put in the unrecognised header error message(s) held back (if any)
             if(errorMessageHold.length > 0) {
@@ -269,27 +175,27 @@ module.exports = {
             if(type == 4)
                 headerHint = " This page needs the layout, title, permalink, and breadcrumb fields in the header to work properly."
 
-            if(!layoutPresent) {
+            if(!headerPresent[0]) {
                 returnObj.errorMessage += errorHeader + "is missing the `layout: ` field in the header." + headerHint;
                 returnObj.hasError = true;
             }
-            if(!titlePresent) {
+            if(!headerPresent[1]) {
                 returnObj.errorMessage += errorHeader + "is missing the `title: ` field in the header." + headerHint;
                 returnObj.hasError = true;
             }
-            if(!permalinkPresent) {
+            if(!headerPresent[2]) {
                 returnObj.errorMessage += errorHeader + "is missing the `permalink: ` field in the header." + headerHint;
                 returnObj.hasError = true;
             }
-            if(!breadcrumbPresent && (type == 2 || type == 4)) {
+            if(!headerPresent[3] && (type == 2 || type == 4)) {
                 returnObj.errorMessage += errorHeader + "is missing the `breadcrumb: ` field in the header." + headerHint;
                 returnObj.hasError = true;
             }
-            if(!collectionNamePresent && type == 2) {
+            if(!headerPresent[5] && type == 2) {
                 returnObj.errorMessage += errorHeader + "is missing the `collection_name: ` field in the header." + headerHint;
                 returnObj.hasError = true;
             }
-            if(!datePresent && type == 3) {
+            if(!headerPresent[4] && type == 3) {
                 //check whether the date is in the file name
                 //if it isn't, then we spit the date not found error
                 if(!/\/\d\d\d\d-\d\d-\d\d-.*\.md/.test(filePath)) {
@@ -300,7 +206,7 @@ module.exports = {
         }
         else {
             //bad or non-existent end headers
-            returnObj.errorMessage += errorHeader + "needs to have exactly 3 dashes (---) after all the headers (e.g. layout and title), on a new line.";
+            returnObj.errorMessage += errorHeader + "needs to have exactly 3 dashes (`---`) after all the headers (e.g. layout and title), on a new line.";
             returnObj.hasError = true;
         }
 

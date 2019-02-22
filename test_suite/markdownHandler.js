@@ -6,7 +6,12 @@ const fs = require("fs");
 //3 it pulls the value for resources-more-button-url
 //4 it runs the regex on the value to get e.g. "desiredtext" in "desiredtext/junk/?morejunk"
 //5 it turns the desired text to lower case
-const resourceRoomName = /\/?(.*)\//.exec(require("js-yaml").safeLoad(fs.readFileSync("./_data/homepage.yml"))["resources-more-button-url"])[1].toLowerCase();
+try {
+    var resourceRoomName = require("js-yaml").safeLoad(fs.readFileSync("./_config.yml"))["resources_name"].replace(/"/g, "").toLowerCase();
+}
+catch(e) {
+    resourceRoomName = false; //assume no resource room
+}
 //enable this line instead if you prefer to not get resourceRoomName automatically or if the above line is not working
 //const resourceRoomName = "news";
 
@@ -27,7 +32,7 @@ module.exports = {
             type = 1;
         else if(filePath.startsWith("./_"))
             type = 2;
-        else if(filePath.startsWith("./"+resourceRoomName+"/"))
+        else if(resourceRoomName && filePath.startsWith("./"+resourceRoomName+"/"))
             type = 3;
         
         //this is the part where we run our suite of markdown tests

@@ -9,7 +9,7 @@ module.exports = {
             errorMessage: ""
         }
 
-        const errorHeader = "\n" + filePath.substring(1) + " ";
+        const errorHeader = "\n`" + filePath.substring(1) + "` ";
 
         //turns the yaml string into a javascript object
         try {
@@ -18,7 +18,7 @@ module.exports = {
         catch(e) {
             //yaml.safeload() throws an exception if there are YAML syntax errors, e.g. 2 attributes with the same name
             //we will just output the syntax error details and quit checking
-            console.log(e);
+            console.error(e);
             returnObj.errorMessage += errorHeader + e.message;
             returnObj.hasError = true;
             return returnObj; //no point continuing if the data isn't properly loaded

@@ -22,7 +22,7 @@ module.exports = {
             //start processing it and present it in a more user friendly format
             returnObj.hasError = true;
             for(i=0;i<results.content.length;i++) {
-                returnObj.errorMessage += "\n" + filePath.substring(1) + " (Line " + results.content[i].lineNumber + ")" + userFriendlyErrorMessages[results.content[i].ruleNames[0]];
+                returnObj.errorMessage += "\n`" + filePath.substring(1) + "` (*Line " + results.content[i].lineNumber + "*)" + userFriendlyErrorMessages[results.content[i].ruleNames[0]];
             }
         }
         return returnObj;
