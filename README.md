@@ -6,10 +6,10 @@ Specifically, it checks for syntax errors in the Markdown and YAML files used by
 
 ## Isomer Integration
 
-First, install [this package](https://www.npmjs.com/package/@liyicheng/isomerpages-travisci-scripts) as a dependency:
+First, install [this package](https://www.npmjs.com/package/@isomerpages/isomerpages-travisci-scripts) as a dependency:
 
 ```bash
-npm install @liyicheng/isomerpages-travisci-scripts
+npm install @isomerpages/isomerpages-travisci-scripts
 ```
 
 Follow [Slack's instructions](https://api.slack.com/incoming-webhooks) for creating an app with a webhook for the channel you want the script to send error messages to. Add this webhook address to your TravisCI environment as the `SLACK_URI` environmental variable. Add the `KEYCDN_API_KEY` and `KEYCDN_ZONE_ID` environmental variables as well. **Make sure all these environmental variables are hidden!**
@@ -31,7 +31,7 @@ Create the file `travis-script.js` in the root directory of your site's reposito
 
 ```js
 //travis-script.js
-const travisScript = require("@liyicheng/isomerpages-travisci-scripts");
+const travisScript = require("@isomerpages/isomerpages-travisci-scripts");
 const travisBranch = process.env.TRAVIS_BRANCH;
 
 if(travisBranch == "master") {
