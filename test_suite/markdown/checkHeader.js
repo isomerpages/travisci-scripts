@@ -71,7 +71,7 @@ module.exports = {
             //type 4, solo page: needs layout, title, permalink, and breadcrumb
 
             if(frontMatter.data.hasOwnProperty("layout")) {
-                if(frontMatter.data.layout.length < 1) {
+                if(frontMatter.data.layout == null || frontMatter.data.layout.length < 1) {
                     //the field is empty
                     returnObj.errorMessage += errorHeader + "is missing the value for the `layout: ` field in the header.";
                     returnObj.hasError = true;
@@ -83,7 +83,7 @@ module.exports = {
             }
 
             if(frontMatter.data.hasOwnProperty("title")) {
-                if(frontMatter.data.title.length < 1) {
+                if(frontMatter.data.title == null || frontMatter.data.title.length < 1) {
                     //the field is empty
                     returnObj.errorMessage += errorHeader + "is missing the value for the `title: ` field in the header.";
                     returnObj.hasError = true;
@@ -95,7 +95,7 @@ module.exports = {
             }
 
             if(frontMatter.data.hasOwnProperty("permalink")) {
-                if(frontMatter.data.permalink.length == 0) {
+                if(frontMatter.data.permalink == null || frontMatter.data.permalink.length < 1) {
                     //uh oh no permalink
                     returnObj.errorMessage += errorHeader + "has a `permalink: ` field but has no permalink. Please enter one as a permalink is needed for the page to be properly accessed. An example permalink is `/news/press-releases/test/`";
                     returnObj.hasError = true;
@@ -129,7 +129,7 @@ module.exports = {
             }
             else if(frontMatter.data.hasOwnProperty("file_url")) {
                 //it is okay if it does not have a permalink, but has file_url: see HLB's resource room
-                if(frontMatter.data.file_url.length == 0) {
+                if(frontMatter.data.file_url == null || frontMatter.data.file_url.length == 0) {
                     //uh oh no file_url
                     returnObj.errorMessage += errorHeader + "has a `file_url: ` field but it is empty. The URL of your file is required for your file to be properly accessed. An example file_url is `/files/folder1/folder2/yourFile.pdf";
                     returnObj.hasError = true;
@@ -154,7 +154,7 @@ module.exports = {
 
             //breadcrumbs are needed left-nav and resource-room pages only
             if(frontMatter.data.hasOwnProperty("breadcrumb") && (type == 2 || type == 4)) {
-                if(frontMatter.data.breadcrumb.length < 1) {
+                if(frontMatter.data.breadcrumb == null || frontMatter.data.breadcrumb.length < 1) {
                     //the field is empty
                     returnObj.errorMessage += errorHeader + "is missing the value for the `breadcrumb: ` field in the header.";
                     returnObj.hasError = true;
@@ -167,7 +167,7 @@ module.exports = {
 
             //collection_name is only needed for left-nav pages only
             if(frontMatter.data.hasOwnProperty("collection_name") && type == 2) {
-                if(frontMatter.data.collection_name.length < 1) {
+                if(frontMatter.data.collection_name == null || frontMatter.data.collection_name.length < 1) {
                     //the field is empty
                     returnObj.errorMessage += errorHeader + "is missing the value for the `collection_name: ` field in the header.";
                     returnObj.hasError = true;
@@ -182,7 +182,7 @@ module.exports = {
             //we check this field a bit differently because it can be done by having the date in the file name too
             if(type == 3) {
                 //to be improved: instead of frontMatter.data.date.length < 1 we can check for proper date formats
-                if(!frontMatter.data.hasOwnProperty("date") || frontMatter.data.date.length < 1) {
+                if(!frontMatter.data.hasOwnProperty("date") || frontMatter.data.date == null || frontMatter.data.date.length < 1) {
                     //check whether the date is in the file name
                     //if it isn't, then we spit the date not found error
                     if(!/\/\d\d\d\d-\d\d-\d\d-.*\.md/.test(filePath)) {
