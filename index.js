@@ -8,7 +8,7 @@ const axios = require('axios');
 module.exports = {
     runAll: function(sendSlack = true) {
         purgeCacheIfDeployed();
-        testsOnly(sendSlack);
+        testSuiteHandler.startTests(sendSlack);
         //other stuff to be handled by TravisCI as needed
         return;
     },
