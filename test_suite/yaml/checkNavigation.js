@@ -28,17 +28,18 @@ module.exports = {
         if(filePath.endsWith("navigation.yml") || filePath.endsWith("navigation.yaml")) {
             for(i=0;i<data.length;i++) {
                 var numSuffix = "th";
-                    if((i+1) % 10 == 1)
-                        numSuffix = "st";
-                    if((i+1) % 10 == 2)
-                        numSuffix = "nd";
-                    if((i+1) % 10 == 3)
-                        numSuffix == "rd";
+                if((i+1) % 10 == 1)
+                    numSuffix = "st";
+                if((i+1) % 10 == 2)
+                    numSuffix = "nd";
+                if((i+1) % 10 == 3)
+                    numSuffix == "rd";
+                    
                 if(!data[i].hasOwnProperty("title")) {
                     returnObj.errorMessage += errorHeader + "is missing a `title: ` field in the *" + (i+1) + numSuffix + " set* of URLs";
                     returnObj.hasError = true;
                 }
-                if(!data[i].hasOwnProperty("url")) {
+                if(!data[i].hasOwnProperty("url") && !data[i].hasOwnProperty("sub-links")) { //no url is okay if it is only a collection of sublinks
                     returnObj.errorMessage += errorHeader + "is missing a `url: ` field in the *" + (i+1) + numSuffix + " set* of URLs";
                     returnObj.hasError = true;
                 }
