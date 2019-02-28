@@ -76,6 +76,13 @@ module.exports = {
         }
         if(errorCount > 0) {
             console.log(errorOutput);
+
+            //Encode the 3 characters we have to use HTML encoding for: &, <, and >
+            //see: https://api.slack.com/docs/message-formatting
+            errorOutput = errorOutput.replace(/&/g, "&amp;");
+            errorOutput = errorOutput.replace(/</g, "&lt;");
+            errorOutput = errorOutput.replace(/>/g, "&gt;");
+            
             if(sendSlack) {
                 const SLACK_URI = process.env.SLACK_URI;
                 var clientServerOptions = {
