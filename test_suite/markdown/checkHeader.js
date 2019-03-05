@@ -153,16 +153,16 @@ module.exports = {
             }
 
             //breadcrumbs are needed for left-nav and resource-room pages only
-            //however, we would not check breadcrumb for type 4 pages because they
-            //could be a resource room page that hasn't been "detected" properly
-            if(frontMatter.data.hasOwnProperty("breadcrumb") && type == 2) {
+            //however, we would not presence of breadcrumb for type 4 pages because
+            //it could be a resource room page that hasn't been "detected" properly
+            if(frontMatter.data.hasOwnProperty("breadcrumb") && (type == 2 || type == 4)) {
                 if(frontMatter.data.breadcrumb == null || frontMatter.data.breadcrumb.length < 1) {
                     //the field is empty
                     returnObj.errorMessage += errorHeader + "is missing the value for the `breadcrumb: ` field in the header.";
                     returnObj.hasError = true;
                 }
             }
-            else if(type == 2 || type == 4) {
+            else if(type == 2) {
                 returnObj.errorMessage += errorHeader + "is missing the `breadcrumb: ` field in the header." + headerHint;
                 returnObj.hasError = true;
             }
