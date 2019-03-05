@@ -6,8 +6,6 @@ module.exports = {
     //type 3 pages are resource room pages
     //type 4 pages are those by themselves (e.g. privacy.md and includes misc/search.md)
     runTest: function(data, type, filePath, permalinks) {
-        var errorMessageHold = "";
-        
         var returnObj = {
             permalinks: [],
             hasError: false,
@@ -69,6 +67,8 @@ module.exports = {
             //type 2, left-nav page: needs layout, title, permalink, breadcrumb, and collection_name
             //type 3, resource room page: needs layout, title, date, and permalink
             //type 4, solo page: needs layout, title, permalink, and breadcrumb
+            //however, we would not check breadcrumb for type 4 pages because they
+            //could be a resource room page that hasn't been "detected" properly
 
             if(frontMatter.data.hasOwnProperty("layout")) {
                 if(frontMatter.data.layout == null || frontMatter.data.layout.length < 1) {
@@ -152,8 +152,10 @@ module.exports = {
                 returnObj.hasError = true;
             }
 
-            //breadcrumbs are needed left-nav and resource-room pages only
-            if(frontMatter.data.hasOwnProperty("breadcrumb") && (type == 2 || type == 4)) {
+            //breadcrumbs are needed for left-nav and resource-room pages only
+            //however, we would not check breadcrumb for type 4 pages because they
+            //could be a resource room page that hasn't been "detected" properly
+            if(frontMatter.data.hasOwnProperty("breadcrumb") && type == 2) {
                 if(frontMatter.data.breadcrumb == null || frontMatter.data.breadcrumb.length < 1) {
                     //the field is empty
                     returnObj.errorMessage += errorHeader + "is missing the value for the `breadcrumb: ` field in the header.";
