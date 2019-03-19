@@ -1,15 +1,15 @@
 const markdownlint = require("markdownlint");
 
 module.exports = {    
-    runTest: function(data, type, filePath) {
+    runTest: function(data, filePath) {
         var returnObj = {
             hasError: false,
+            hasFatalError: false,
             errorMessage: ""
         }
 
-        var config = defaultConfig;
-        if(type == 1) //the only type 1 page is ./index.md
-            config = homeConfig;
+        const config = defaultConfig;
+
         const options = {
             strings: {
                 content: data
@@ -20,28 +20,19 @@ module.exports = {
         if(results.content.length > 0) {
             //meaning there are more than 0 errors
             //start processing it and present it in a more user friendly format
-            returnObj.hasError = true;
+
             for(i=0;i<results.content.length;i++) {
-                returnObj.errorMessage += "\n`" + filePath.substring(1) + "` (*Line " + results.content[i].lineNumber + "*)" + userFriendlyErrorMessages[results.content[i].ruleNames[0]];
+                const hasScriptTag = (results.content[i].ruleNames[0] === "MD033" && results.content[i].errorDetail.toLowerCase() === "element: script")
+
+                if(results.content[i].ruleNames[0] !== "MD033" || hasScriptTag) {
+                    returnObj.hasError = true;
+                    returnObj.errorMessage += "\n`" + filePath.substring(1) + "` (*Line " + results.content[i].lineNumber + "*)" + userFriendlyErrorMessages[results.content[i].ruleNames[0]];
+                    if(hasScriptTag) returnObj.hasFatalError = true;
+                }
             }
         }
         return returnObj;
     }
-}
-
-const homeConfig = {
-    default: false,
-    MD004: true,
-    MD005: true,
-    MD007: true,
-    MD011: true,
-    MD028: true,
-    MD029: true,
-    MD034: true,
-    MD037: true,
-    MD039: true,
-    MD042: true,
-    MD045: true
 }
 
 const defaultConfig = {
@@ -56,7 +47,8 @@ const defaultConfig = {
     MD037: true,
     MD039: true,
     MD042: true,
-    MD045: true
+    MD045: true,
+    MD033: true,
 }
 
 const userFriendlyErrorMessages = {
@@ -88,7 +80,7 @@ const userFriendlyErrorMessages = {
 	MD030: " has the wrong number of spaces after the list marker (e.g. `1.This is wrong`). We suggest leaving exactly 1 space between the list marker and your text (e.g. `1. This is correct`)",
 	MD031: " has a code block that are not surrounded by blank lines. We suggest leaving 1 blank line both before and after a code block",
 	MD032: " has a list that are not surrounded by blank lines. We suggest leaving 1 blank line both before and after a list",
-	MD033: " has raw HTML. This rule should not appear. If you are seeing this, you may ignore it if you wish",
+	MD033: " has a `<script>` tag. For security reasons, we do not allow custom JavaScript. *This is a fatal error! Merging to master will be blocked until this is rectified.*",
 	MD034: " has a \"bare\" URL in the text directly. URLs should be placed between 2 angled brackets, e.g. `<https://www.example.com/>` so that it will turn into a clickable link. We suggest placing URLs in a text link such as `[Link Text Here](https://www.example.com)` whenever possible",
 	MD035: " has multiple styles of horizontal rules used. We suggest sticking to 3 dashes (`---`), for all horizontal rules",
 	MD036: " seems to be using bolds or italics to separate sections. We suggest using headings (e.g. H2 headings by adding 2 hashes `##` at the front) as this will create a more consistent look on the resulting page",

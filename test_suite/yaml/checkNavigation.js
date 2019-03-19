@@ -6,6 +6,7 @@ module.exports = {
     runTest: function(data, filePath) {
         var returnObj = {
             hasError: false,
+            hasFatalError: false,
             errorMessage: ""
         }
 
