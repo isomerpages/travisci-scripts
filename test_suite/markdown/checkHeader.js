@@ -9,6 +9,7 @@ module.exports = {
         var returnObj = {
             permalinks: [],
             hasError: false,
+            hasFatalError: false,
             errorMessage: ""
         }
         

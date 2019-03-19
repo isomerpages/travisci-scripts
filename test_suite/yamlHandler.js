@@ -10,19 +10,16 @@ module.exports = {
         //it not be worth the effort to test for each file as well taking into account that the yaml files are
         //edited much less frequently
 
-        var returnObj;
+        let returnObj;
         
-        if(filePath.endsWith("navigation.yml") || filePath.endsWith("navigation.yaml")) {
-            const checkNavigation = require("./yaml/checkNavigation.js");
-            returnObj = checkNavigation.runTest(data, filePath);
+        if(filePath.toLowerCase().endsWith("navigation.yml") || filePath.toLowerCase().endsWith("navigation.yaml")) {
+            returnObj = require("./yaml/checkNavigation.js").runTest(data, filePath);
         }
-        else if(filePath.endsWith("homepage.yml" || filePath.endsWith("homepage.yaml"))) {
-            const checkHomepage = require("./yaml/checkHomepage.js");
-            returnObj = checkHomepage.runTest(data, filePath);
+        else if(filePath.toLowerCase().endsWith("homepage.yml" || filePath.toLowerCase().endsWith("homepage.yaml"))) {
+            returnObj = require("./yaml/checkHomepage.js").runTest(data, filePath);
         }
         else { //run the generic syntax test
-            const checkYamlGeneric = require("./yaml/checkYamlGeneric.js");
-            returnObj = checkYamlGeneric.runTest(data, filePath);
+            returnObj = require("./yaml/checkYamlGeneric.js").runTest(data, filePath);
         }
         return returnObj;
     }

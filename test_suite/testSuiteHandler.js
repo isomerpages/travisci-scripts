@@ -2,7 +2,7 @@
 //the respective shell commands for each file
 
 //full name of files/folders where checks are to be skipped
-const ignores = ["README.md", "node_modules", "Readme.md", "readme.md"];
+const ignores = ["readme.md", "node_modules", "_site"];
 
 //should hidden files and directories (i.e. names
 //beginning with '.') be checked?
@@ -13,11 +13,12 @@ const markdownHandler = require("./markdownHandler.js");
 const yamlHandler = require("./yamlHandler.js");
 const request = require("request");
 
-var errorMessage = "";
-var fileCount = 0;
-var errorCount = 0;
+let errorMessage = "";
+let fileCount = 0;
+let errorCount = 0;
+let fatalErrorCount = 0;
 
-var permalinks = [];
+let permalinks = [];
 
 //iterates through the root directory of the repo and
 //runs the appropriate check for the file type
@@ -28,7 +29,7 @@ function readDirectory(path = ".") {
         if(!checkHiddens && file.name.startsWith("."))
             return;
         for(var i = 0, len = ignores.length;i < len;i++) {
-            if(file.name == ignores[i])
+            if(file.name.toLowerCase() == ignores[i])
                 return;
         }
         fullPath = path + "/" + file.name;
@@ -36,6 +37,7 @@ function readDirectory(path = ".") {
             readDirectory(fullPath);
         }
         else if(file.isFile()) {
+            //Markdown file checks MUST be synchronous because of the permalink checks
             if(file.name.endsWith(".md")) {
                 fileCount++;
                 var checkResult = markdownHandler.runTest(fullPath, permalinks);
@@ -43,6 +45,7 @@ function readDirectory(path = ".") {
                     errorCount++;
                     errorMessage += checkResult.errorMessage;
                 }
+                if(checkResult.hasFatalError) fatalErrorCount++;
                 permalinks = permalinks.concat(checkResult.permalinks);
             }
 
@@ -53,6 +56,7 @@ function readDirectory(path = ".") {
                     errorCount++;
                     errorMessage += checkResult.errorMessage;
                 }
+                if(checkResult.hasFatalError) fatalErrorCount++;
             }
         }
     });
@@ -96,11 +100,23 @@ module.exports = {
                 request(clientServerOptions, function (error) {
                     if(error) {
                         //oh no the message didn't go through to Slack
-                        throw new Error("The message didn't go through to Slack!\n" + error);
+                        console.log("The message didn't go through to Slack!\n" + error);
+                    }
+
+                    if(fatalErrorCount > 0) {
+                        //Fail the build here only after the Slack message is sent
+                        throw new Error("Fatal error(s) were found! See above for details. Fatal errors must be rectified before merging to master is allowed.")
                     }
                 });
             }
+            else if(fatalErrorCount > 0) {
+                //Fail the build here separately from Slack to avoid a case where this program
+                //ceases execution before a Slack message is sent because we threw an error
+
+                throw new Error("Fatal error(s) were found! See above for details. Fatal errors must be rectified before merging to master is allowed.")
+            }
         }
+
 
         //reset variables we previously used
         errorMessage = "";
