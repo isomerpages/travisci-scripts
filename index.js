@@ -1,5 +1,6 @@
 const testSuiteHandler = require("./test_suite/testSuiteHandler.js");
 const axios = require('axios');
+const request = require("request");
 
 // purgeCacheIfDeployed runs when code is successfully merged to the master branch.
 // The function runs a while loop to check if the Netlify website has been successfully deployed.
@@ -7,7 +8,7 @@ const axios = require('axios');
 
 module.exports = {
     runAll: function(sendSlack = true) {
-        purgeCacheIfDeployed();
+        purgeCacheIfDeployed(sendSlack);
         testSuiteHandler.startTests(sendSlack);
         //other stuff to be handled by TravisCI as needed
         return;
@@ -18,13 +19,42 @@ module.exports = {
     purgeCacheOnly: purgeCacheIfDeployed
 }
 
-async function purgeCacheIfDeployed() {
+function timeOutAlert(sendSlack) {
+  const errorMessage = 'The latest build did not deploy successfully for 10 minutes! The build most likely has failed.'
+  console.log(errorMessage)
+
+  if(sendSlack) {
+    const SLACK_URI = process.env.SLACK_URI;
+    var clientServerOptions = {
+        uri: SLACK_URI,
+        body: "{\"text\": " + JSON.stringify(errorMessage) + "}",
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+    request(clientServerOptions, function (error) {
+        if(error) {
+            //oh no the message didn't go through to Slack
+            console.log("The message didn't go through to Slack!\n" + error);
+        }
+    });
+  }
+}
+
+async function purgeCacheIfDeployed(sendSlack = true) {
   try {
     console.log('In purgeCacheIfDeployed')
     let deploySuccess = false
+
+    // Timeout if build has not succeeded for 10min
+    const timeOut = setTimeout(timeOutAlert, 600000, sendSlack)
+
     while (!deploySuccess) {
       deploySuccess = await checkDeployState()
     }
+
+    clearTimeout(timeOut)
 
     let purgeSuccess = false 
     while (!purgeSuccess) {
