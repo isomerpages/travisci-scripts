@@ -72,6 +72,8 @@ It does not return any value - all output is sent to standard output and Slack (
 
 ### purgeCacheOnly
 
-`purgeCacheOnly()` is a method that does not take in any parameters. It only runs the CDN cache purger, skipping the Isomer syntax checker.
+`purgeCacheOnly()` is a method that optionally takes in the boolean parameter `sendSlack`, which defaults to `true` if left unspecified. It only runs the CDN cache purger, skipping 
+the Isomer syntax checker.
 
-It does not return any value. Errors during execution, if any, are sent to standard output only.
+It does not return any value. Errors during execution, if any, are sent to standard output only. However, if the Netlify build timeouts (i.e. build is not successful after 10 
+minutes), an alert will be sent to Slack if `sendSlack` is `true`.
