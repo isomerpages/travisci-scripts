@@ -26,6 +26,10 @@ function readDirectory(path = ".") {
     files = fs.readdirSync(path, {"withFileTypes": true});
 
     files.forEach(function (file) {
+        if(!file.name) {
+            console.log(file)
+            return
+        }
         if(!checkHiddens && file.name.startsWith("."))
             return;
         for(var i = 0, len = ignores.length;i < len;i++) {
