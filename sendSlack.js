@@ -1,9 +1,12 @@
 const request = require('request');
 
-const { SLACK_URI } = process.env;
+const { SLACK_URI, SLACK_ALERT_URI } = process.env;
 
-function sendSlackMessage(message) {
+function sendSlackMessage(message, alert = false) {
   let encodedMessage = message;
+
+  const URI = (alert && SLACK_ALERT_URI) ? SLACK_ALERT_URI : SLACK_URI;
+  if (!URI) throw new Error('No Slack URI was defined!');
 
   // Encode the 3 characters we have to use HTML encoding for: &, <, and >
   // see: https://api.slack.com/docs/message-formatting
@@ -12,7 +15,7 @@ function sendSlackMessage(message) {
   encodedMessage = encodedMessage.replace(/>/g, '&gt;');
 
   const clientServerOptions = {
-    uri: SLACK_URI,
+    uri: URI,
     body: `{"text": ${JSON.stringify(encodedMessage)}}`,
     method: 'POST',
     headers: {

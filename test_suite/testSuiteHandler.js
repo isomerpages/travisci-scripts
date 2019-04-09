@@ -85,6 +85,7 @@ module.exports = {
       if (fatalErrorCount > 0) {
         // Fail the build here separately from Slack to avoid a case where this program
         // ceases execution before a Slack message is sent because we threw an error
+        sendSlackMessage(`The following errors were found in the repo for ${process.env.PROD_URL}:\n${errorOutput}`, true);
         throw new Error('Fatal error(s) were found! See above for details. Fatal errors must be rectified before merging to master is allowed.');
       }
     }

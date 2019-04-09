@@ -16,6 +16,7 @@ const opts = {
 
 async function runLightHouse(url, sendSlack) {
   console.log('Lighthouse tests starting...');
+  let hasVulnerability = false;
   try {
     const results = await launchChromeAndRunLighthouse(url, opts);
     // Check for presence of vulnerable libraries
@@ -25,7 +26,11 @@ async function runLightHouse(url, sendSlack) {
         vulnText += `\n${vuln.highestSeverity} severity: ${vuln.vulnCount} vulnerabilities found in ${vuln.detectedLib.text} (${vuln.detectedLib.url})`;
       });
       console.log(vulnText);
-      if (sendSlack) sendSlackMessage(vulnText);
+      hasVulnerability = true;
+      if (sendSlack) {
+        sendSlackMessage(vulnText);
+        sendSlackMessage(vulnText, true);
+      }
     }
     // Print a score summary
     console.log(`\nLighthouse Score Summary for ${url}`);
@@ -37,6 +42,7 @@ async function runLightHouse(url, sendSlack) {
   } catch (e) {
     console.log(e);
   }
+  if (hasVulnerability) throw new Error('Fatal error(s) were found! See above for details. Fatal errors must be rectified before merging to master is allowed.');
 }
 
 module.exports = { runLightHouse };
