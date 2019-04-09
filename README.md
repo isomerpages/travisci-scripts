@@ -12,7 +12,7 @@ First, install [this package](https://www.npmjs.com/package/@isomerpages/isomerp
 npm install @isomerpages/isomerpages-travisci-scripts
 ```
 
-Follow [Slack's instructions](https://api.slack.com/incoming-webhooks) for creating an app with a webhook for the channel you want the script to send error messages to. Add this webhook address to your TravisCI environment as the `SLACK_URI` environmental variable. Add the `KEYCDN_API_KEY`, `KEYCDN_ZONE_ID`, `NETLIFY_SITE_ID`, `NETLIFY_ACCESS_TOKEN`, and `PROD_URL` environmental variables as well.
+Follow [Slack's instructions](https://api.slack.com/incoming-webhooks) for creating an app with a webhook for the channel you want the script to send error messages to. Add this webhook address to your TravisCI environment as the `SLACK_URI` environmental variable. Add the `SLACK_ALERT_URI`, `KEYCDN_API_KEY`, `KEYCDN_ZONE_ID`, `NETLIFY_SITE_ID`, `NETLIFY_ACCESS_TOKEN`, `STAGING_URL`, and `PROD_URL` environmental variables as well.
 
 **Make sure all secret key environmental variables are hidden!**
 
