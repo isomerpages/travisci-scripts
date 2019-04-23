@@ -41,7 +41,7 @@ module.exports = {
       }
       if (Object.prototype.hasOwnProperty.call(yamlData, 'key-highlights')) {
         for (let i = 0; i < yamlData['key-highlights'].length; i += 1) {
-          const highlightFields = ['title', 'description', 'url'];
+          const highlightFields = ['title', 'description'];
           for (let j = 0; j < highlightFields.length; j += 1) {
             if (!Object.prototype.hasOwnProperty.call(yamlData['key-highlights'][i], highlightFields[j])) {
               returnObj.errorMessage += `${errorHeader}is missing a \`${highlightFields[j]}: \` field under \`key-highlights: \`. We strongly recommend filling in all fields so that the user experience is as pleasant as possible`;
