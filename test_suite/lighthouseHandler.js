@@ -24,7 +24,6 @@ async function runLightHouse(url, sendSlack) {
       results.lhr.audits['no-vulnerable-libraries'].details.items.forEach((vuln) => {
         vulnText += `\n${vuln.highestSeverity} severity: ${vuln.vulnCount} vulnerabilities found in ${vuln.detectedLib.text} (${vuln.detectedLib.url})`;
       });
-      console.log(results.lhr.audits['no-vulnerable-libraries']);
       console.log(vulnText);
       if (sendSlack) {
         console.log('Slack alerts have been temporarily disabled due to the persistent jQuery vulnerability issue');

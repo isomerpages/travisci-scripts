@@ -129,9 +129,10 @@ module.exports = {
           returnObj.errorMessage += `${errorHeader}has a \`file_url: \` field but it is empty. The URL of your file is required for your file to be properly accessed. An example file_url is \`/files/folder1/folder2/yourFile.pdf`;
           returnObj.hasError = true;
         }
-
+        // Removes "https://", "http://", or "ftp://" at the front of file_url, if present
+        const [, , fileUrl] = /(https:\/\/|http:\/\/|ftp:\/\/|)(.*)/m.exec(frontMatter.data.file_url);
         for (let j = 0; j < unsafeChars.length; j += 1) {
-          if (frontMatter.data.file_url.includes(unsafeChars[j])) {
+          if (fileUrl.includes(unsafeChars[j])) {
             returnObj.errorMessage += `${errorHeader}has the \`${unsafeChars[j]}\` character in its \`file_url: \` field. This character is unsafe for use in URLs. Please remove this character, replace it with a dash (\`-\`), or replace it with english text (e.g. \`-and-\` instead of \`&\`)`;
             returnObj.hasError = true;
           }

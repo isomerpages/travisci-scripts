@@ -56,7 +56,7 @@ This is all you need to get started! Give yourself a pat on the back, sit back, 
 
 If `sendSlack` is set to `false`, the error output will not be sent to Slack. However, you can continue to see the output generated in the TravisCI build log.
 
-`runAll()` will run both the Isomer syntax checker and the CDN purger. It should be run when commits/merges are made in the `master` branch.
+`runAll()` will run the Isomer syntax checker, the CDN purger, and the Lighthouse scan for the production site. It should be run when commits/merges are made in the `master` branch.
 
 It does not return any value - all output is sent to standard output and Slack (if enabled, and does not include any CDN purging errors).
 
@@ -66,7 +66,7 @@ It does not return any value - all output is sent to standard output and Slack (
 
 If `sendSlack` is set to `false`, the error output will not be sent to Slack. However, you can continue to see the output generated in the TravisCI build log.
 
-As its name implies, `testsOnly()` will only run the Isomer syntax checker. It should be run for commits on staging branches.
+As its name implies, `testsOnly()` will only run the Isomer syntax checker and the Lighthouse scan for the staging site. It should be run for commits on staging branches.
 
 Running `testsOnly(false)` is also a great way to preview the error output locally to fix any preexisting issues before deploying it on a site's repository. You don't want to suddenly send a barrage of error messages to the user's Slack channel!
 
