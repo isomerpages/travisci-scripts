@@ -11,7 +11,7 @@ function launchChromeAndRunLighthouse(url, opts, config = null) {
 }
 
 const opts = {
-  chromeFlags: ['--no-sandbox'],
+  chromeFlags: ['--headless', '--no-sandbox'],
 };
 
 async function runLightHouse(url, sendSlack) {
