@@ -1,6 +1,6 @@
 {
   "name": "@isomerpages/isomerpages-travisci-scripts",
-  "version": "1.4.9",
+  "version": "1.4.10",
   "description": "A set of scripts that facilitates the production and deployment of Isomer pages",
   "main": "test_suite/index.js",
   "scripts": {},
@@ -19,17 +19,17 @@
   },
   "homepage": "https://github.com/yicheng340/isomer-travisci-scripts#readme",
   "dependencies": {
-    "axios": "^0.18.0",
-    "chrome-launcher": "^0.10.5",
+    "axios": "^0.18.1",
+    "chrome-launcher": "^0.10.7",
     "gray-matter": "^4.0.2",
     "js-yaml": "^3.13.1",
-    "lighthouse": "^4.3.0",
+    "lighthouse": "^4.3.1",
     "markdownlint": "^0.12.0",
     "request": "^2.88.0"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.17.2"
+    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-plugin-import": "^2.18.2"
   }
 }
