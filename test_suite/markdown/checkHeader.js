@@ -130,7 +130,7 @@ module.exports = {
           returnObj.hasError = true;
         }
         // Removes "https://", "http://", or "ftp://" at the front of file_url, if present
-        const [, , fileUrl] = /(https:\/\/|http:\/\/|ftp:\/\/|)(.*)/m.exec(frontMatter.data.file_url);
+        const [, , fileUrl] = /^(https:\/\/|http:\/\/|ftp:\/\/|)(.*)/i.exec(frontMatter.data.file_url);
         for (let j = 0; j < unsafeChars.length; j += 1) {
           if (fileUrl.includes(unsafeChars[j])) {
             returnObj.errorMessage += `${errorHeader}has the \`${unsafeChars[j]}\` character in its \`file_url: \` field. This character is unsafe for use in URLs. Please remove this character, replace it with a dash (\`-\`), or replace it with english text (e.g. \`-and-\` instead of \`&\`)`;
@@ -187,7 +187,7 @@ module.exports = {
         }
       }
 
-      const headers = ['layout', 'title', 'permalink', 'breadcrumb', 'date', 'collection_name', 'tag', 'thumbnail_image', 'image', 'description', 'second_nav_title', 'last_updated', 'category', 'file_url', 'datagovsg-id', 'excerpt'];
+      const headers = ['layout', 'title', 'permalink', 'breadcrumb', 'date', 'collection_name', 'tag', 'thumbnail_image', 'image', 'description', 'second_nav_title', 'last_updated', 'category', 'file_url', 'datagovsg-id', 'excerpt', 'recommender'];
 
       const fieldsPresent = Object.keys(frontMatter.data);
       for (let i = 0; i < fieldsPresent.length; i += 1) {

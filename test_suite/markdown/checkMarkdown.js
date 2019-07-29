@@ -23,7 +23,7 @@ const userFriendlyErrorMessages = {
   MD004: ' should use the same character for lists. We suggest you use only asterisks (`*`) and avoid other characters such as `+` and `-`',
   MD005: ' has inconsistent list indentation levels. We suggest you add 4 spaces before the asterisk (`*`) for each level of sublist',
   MD006: ' should start its list at the beginning of each line, without any spaces. If you were trying to create a sublist, we suggest you add 4 spaces before each asterisk (`*`) in the sublist',
-  MD007: ' should have its nested list begin with an extra 2 spaces before the asterisk (`*`)',
+  MD007: ' should have its nested list begin with 2 spaces before the asterisk (`*`)',
   MD009: ' has one or more unneeded space character. We suggest you delete these extra characters',
   MD010: ' has a \'tab\' character. We suggest you use 4 spaces instead of a tab',
   MD011: ' has the () and [] brackets for links reversed. The correct usage is `[Link Text Here](https://www.example.com)`',
