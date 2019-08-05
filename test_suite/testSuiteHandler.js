@@ -53,7 +53,7 @@ function readDirectory(path = '.') {
 
       if (file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
         fileCount += 1;
-        const checkResult = yamlHandler.runTest(fullPath);
+        const checkResult = yamlHandler.runTest(fullPath, file.name);
         if (checkResult.hasError) {
           errorCount += 1;
           errorMessage += checkResult.errorMessage;

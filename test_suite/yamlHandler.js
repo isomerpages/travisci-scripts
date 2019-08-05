@@ -4,7 +4,7 @@ const checkHomepage = require('./yaml/checkHomepage.js');
 const checkYamlGeneric = require('./yaml/checkYamlGeneric.js');
 
 module.exports = {
-  runTest(filePath) {
+  runTest(filePath, fileName) {
     const data = fs.readFileSync(filePath, 'utf-8');
 
     // this is where we run our yaml tests
@@ -18,11 +18,11 @@ module.exports = {
     let returnObj;
 
     if (filePath.toLowerCase().endsWith('navigation.yml') || filePath.toLowerCase().endsWith('navigation.yaml')) {
-      returnObj = checkNavigation.runTest(data, filePath);
-    } else if (filePath.toLowerCase().endsWith('homepage.yml' || filePath.toLowerCase().endsWith('homepage.yaml'))) {
-      returnObj = checkHomepage.runTest(data, filePath);
+      returnObj = checkNavigation.runTest(data, filePath, fileName);
+    } else if (filePath.toLowerCase().endsWith('homepage.yml') || filePath.toLowerCase().endsWith('homepage.yaml')) {
+      returnObj = checkHomepage.runTest(data, filePath, fileName);
     } else { // run the generic syntax test
-      returnObj = checkYamlGeneric.runTest(data, filePath);
+      returnObj = checkYamlGeneric.runTest(data, filePath, fileName);
     }
     return returnObj;
   },
