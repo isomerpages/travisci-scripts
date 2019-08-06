@@ -13,7 +13,7 @@ const returnObj = {
 let callCount = 0;
 
 function checkRequiredFields(structureDefinition, subject) {
-  const returnErrors = [];
+  let returnErrors = [];
 
   if (!structureDefinition) return returnErrors;
   if (!subject) {
@@ -67,13 +67,13 @@ function checkRequiredFields(structureDefinition, subject) {
         const keys = Object.keys(subject);
         for (let j = 0; j < keys.length; j += 1) {
           if (regex.test(keys[j])) {
-            return returnErrors.concat(
+            returnErrors = returnErrors.concat(
               checkRequiredFields(structureDefinition[i].children, subject[keys[j]]),
             );
           }
         }
       } else {
-        return returnErrors.concat(
+        returnErrors = returnErrors.concat(
           checkRequiredFields(
             structureDefinition[i].children,
             subject[structureDefinition[i].name],
@@ -106,7 +106,7 @@ function checkForUndefined(structureDefinition, subject) {
     if (callCount === 1) console.log('it\'s one!');
     if (typeof subject === 'object') {
       for (let i = 0; i < keys.length; i += 1) {
-        returnErrors.push(`${keys[i]} is undefinedd`);
+        returnErrors.push(`${keys[i]} is undefined`);
       }
     }
     return returnErrors;
@@ -118,7 +118,6 @@ function checkForUndefined(structureDefinition, subject) {
     for (let j = 0; j < structureDefinition.length; j += 1) {
       // console.log(structureDefinition[j].name, keys[i], keys[i] === structureDefinition[j].name);
       if (structureDefinition[j].name.regex) {
-        console.log('regex');
         const regex = new RegExp(structureDefinition[j].name.regex, 'g');
         if (regex.test(keys[i])) {
           // match found, check children if any and check the next field
@@ -153,10 +152,7 @@ function compareStructures(structureDefinition, subject) {
   // run 1 pass through definition, check that required fields are there, and required values match
   // then run 1 pass through subject, making sure that there are no undefined fields
   const returnErrors = checkRequiredFields(structureDefinition, subject);
-  const return2 = checkForUndefined(structureDefinition, subject);
-  const return3 = returnErrors.concat(return2);
-  return return3;
-
+  return returnErrors.concat(checkForUndefined(structureDefinition, subject));
 }
 
 module.exports = {
