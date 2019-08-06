@@ -1,4 +1,5 @@
 // runs the test for /_data/navigation.yml
+// Good luck Preston! (I'm sorry)
 
 const yaml = require('js-yaml');
 const { structure } = require('../../structures/yaml.js');
@@ -9,8 +10,10 @@ const returnObj = {
   errorMessage: '',
 };
 
+let callCount = 0;
+
 function checkRequiredFields(structureDefinition, subject) {
-  let returnErrors = [];
+  const returnErrors = [];
 
   if (!structureDefinition) return returnErrors;
   if (!subject) {
@@ -26,10 +29,10 @@ function checkRequiredFields(structureDefinition, subject) {
   }
 
   for (let i = 0; i < structureDefinition.length; i += 1) {
-    if (structureDefinition[i].required) {
+    if (structureDefinition[i].required || typeof structureDefinition[i].requiredValue !== 'undefined') {
       // console.log(structureDefinition[i].name, 'struct def name');
       // console.log(subject, 'subject');
-      if (structureDefinition[i].name.regex) {
+      if (typeof structureDefinition[i].name.regex !== 'undefined') {
         const regex = new RegExp(structureDefinition[i].name.regex, 'g');
 
         let present = false;
@@ -38,15 +41,22 @@ function checkRequiredFields(structureDefinition, subject) {
         for (let j = 0; j < keys.length; j += 1) {
           if (regex.test(keys[j])) {
             present = true;
+            if (typeof structureDefinition[i].requiredValue !== 'undefined'
+            && structureDefinition[i].requiredValue !== subject[keys[j]]) {
+              returnErrors.push(`${structureDefinition[i].name.humanReadableName} must have a value of ${structureDefinition[i].requiredValue}`);
+            }
             break;
           }
         }
 
-        if (!present) {
+        if (structureDefinition[i].required && !present) {
           returnErrors.push(`${structureDefinition[i].name.humanReadableName} is required`);
         }
-      } else if (!subject[structureDefinition[i].name]) {
+      } else if (structureDefinition[i].required && typeof subject[structureDefinition[i].name] === 'undefined') {
         returnErrors.push(`${structureDefinition[i].name} is required`);
+      } else if (typeof structureDefinition[i].requiredValue !== 'undefined'
+        && subject[structureDefinition[i].name] !== structureDefinition[i].requiredValue) {
+        returnErrors.push(`${structureDefinition[i].name} must have a value of ${structureDefinition[i].requiredValue}`);
       }
     }
 
@@ -57,13 +67,13 @@ function checkRequiredFields(structureDefinition, subject) {
         const keys = Object.keys(subject);
         for (let j = 0; j < keys.length; j += 1) {
           if (regex.test(keys[j])) {
-            returnErrors = returnErrors.concat(
+            return returnErrors.concat(
               checkRequiredFields(structureDefinition[i].children, subject[keys[j]]),
             );
           }
         }
       } else {
-        returnErrors = returnErrors.concat(
+        return returnErrors.concat(
           checkRequiredFields(
             structureDefinition[i].children,
             subject[structureDefinition[i].name],
@@ -72,14 +82,81 @@ function checkRequiredFields(structureDefinition, subject) {
       }
     }
   }
+  return returnErrors;
+}
 
+function checkForUndefined(structureDefinition, subject) {
+  callCount += 1;
+  let returnErrors = [];
+
+  if (!subject) {
+    return returnErrors;
+  }
+  if (Array.isArray(subject)) {
+    subject.forEach((element) => {
+      const test = checkForUndefined(structureDefinition, element);
+      returnErrors = returnErrors.concat(test);
+    });
+    return returnErrors;
+  }
+
+  const keys = Object.keys(subject);
+
+  if (!structureDefinition) {
+    if (callCount === 1) console.log('it\'s one!');
+    if (typeof subject === 'object') {
+      for (let i = 0; i < keys.length; i += 1) {
+        returnErrors.push(`${keys[i]} is undefinedd`);
+      }
+    }
+    return returnErrors;
+  }
+  for (let i = 0; i < keys.length; i += 1) {
+    // iterate through struct def to check for match
+    let defined = false;
+
+    for (let j = 0; j < structureDefinition.length; j += 1) {
+      // console.log(structureDefinition[j].name, keys[i], keys[i] === structureDefinition[j].name);
+      if (structureDefinition[j].name.regex) {
+        console.log('regex');
+        const regex = new RegExp(structureDefinition[j].name.regex, 'g');
+        if (regex.test(keys[i])) {
+          // match found, check children if any and check the next field
+          if (Object.keys(subject[keys[i]]).length > 0) {
+            returnErrors = returnErrors.concat(
+              checkForUndefined(structureDefinition[j].children, subject[keys[i]]),
+            );
+          }
+          defined = true;
+          break;
+        }
+      } else if (keys[i] === structureDefinition[j].name) {
+        // match found, check children if any and check the next field
+        if (Object.keys(subject[keys[i]]).length > 0) {
+          returnErrors = returnErrors.concat(
+            checkForUndefined(structureDefinition[j].children, subject[keys[i]]),
+          );
+        }
+        defined = true;
+        break;
+      }
+    }
+
+    if (!defined) {
+      returnErrors.push(`${keys[i]} is undefined`);
+    }
+  }
   return returnErrors;
 }
 
 function compareStructures(structureDefinition, subject) {
-  // run 1 pass through definition, making sure that whatever is required is present
-  // then run 1 pass through subject, making sure that the stuff in there is as defined
-  console.log(checkRequiredFields(structureDefinition, subject));
+  // run 1 pass through definition, check that required fields are there, and required values match
+  // then run 1 pass through subject, making sure that there are no undefined fields
+  const returnErrors = checkRequiredFields(structureDefinition, subject);
+  const return2 = checkForUndefined(structureDefinition, subject);
+  const return3 = returnErrors.concat(return2);
+  return return3;
+
 }
 
 module.exports = {
@@ -107,7 +184,7 @@ module.exports = {
     }
 
     if (structure[fileNameWithoutExtension]) {
-      compareStructures(structure[fileNameWithoutExtension], yamlData);
+      console.log(compareStructures(structure[fileNameWithoutExtension], yamlData));
     }
 
     return returnObj;

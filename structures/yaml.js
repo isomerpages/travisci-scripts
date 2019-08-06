@@ -21,18 +21,15 @@ module.exports.structure = {
             {
               name: 'output',
               required: true,
-              required_value: true,
+              requiredValue: true,
             },
           ],
-        },
-        {
-          name: 'haha',
-          required: true,
         },
       ],
     },
     {
       name: 'resources_name',
+      requiredValue: 'hello',
     },
     {
       name: 'favicon',
@@ -51,6 +48,9 @@ module.exports.structure = {
     },
     {
       name: 'future',
+    },
+    {
+      name: 'defaults',
     },
   ],
 };
