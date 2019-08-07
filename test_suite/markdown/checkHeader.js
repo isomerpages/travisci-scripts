@@ -2,17 +2,18 @@ const grayMatter = require('gray-matter');
 const { compareStructures } = require('../yaml/compareStructures.js');
 const { structure } = require('../../structures/markdown.js');
 
-// a list of non-URL safe characterstaken from
+// a list of non-URL safe characters taken from
 // https://stackoverflow.com/a/695467
 // the slash character (/) is excluded since it is used
 // properly to specify the directory in the URL
 const unsafeChars = ['&', '$', '+', ',', ':', ';', '=', '?', '@', '#', '<', '>', '[', ']', '{', '}', '|', '\\', '^', '%'];
 
 module.exports = {
-  // the home page (index.md) is a type 1 page
-  // type 2 pages are those under a left_nav
-  // type 3 pages are resource room pages
-  // type 4 pages are those by themselves (e.g. privacy.md and includes misc/search.md)
+  // the home page (index.md) is a type 0 page
+  // type 1 pages are those under a left_nav
+  // type 2 pages are resource room pages
+  // type 3 pages are those by themselves (e.g. privacy.md and includes misc/search.md)
+  // type 4 pages have layout: 'contact_us'
   runTest(data, type, filePath, permalinks) {
     const returnObj = {
       permalinks: [],
@@ -61,16 +62,7 @@ module.exports = {
 
       // now we check for missing fields (and invalid data under these fields)
 
-      // fields needed goes into this string to hint to the user
-
-      // type 0, home page: needs layout, title, & permalink
-      // type 1, left-nav page: needs layout, title, permalink, breadcrumb, and collection_name
-      // type 2, resource room page: needs layout, title, date, and permalink
-      // type 3, solo page: needs layout, title, permalink, and breadcrumb
-      // however, we would not check breadcrumb for type 4 pages because they
-      // could be a resource room page that hasn't been "detected" properly
-
-      const errorMessageArray = compareStructures(structure[type], frontMatter);
+      const errorMessageArray = compareStructures(structure[type], frontMatter.data);
 
       if (Object.prototype.hasOwnProperty.call(frontMatter.data, 'permalink')) {
         // make sure the permalink is valid, and not duplicated
@@ -119,7 +111,7 @@ module.exports = {
         }
       }
 
-      if (errorMessageArray.length > 1) {
+      if (errorMessageArray.length > 0) {
         returnObj.hasError = true;
         errorMessageArray.forEach((errorMessage) => {
           returnObj.errorMessage += `${errorHeader}- front matter: ${errorMessage}`;

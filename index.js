@@ -5,7 +5,11 @@ module.exports = {
     testSuiteHandler.startTests(sendSlack);
     // other stuff to be handled by TravisCI as needed
   },
-  testAll(sendSlack = true) {
+  runAll(sendSlack = true) {
     testSuiteHandler.startTests(sendSlack);
+    setTimeout(testSuiteHandler.runLightHouse, 180000, sendSlack);
+  },
+  runLightHouse(sendSlack = true) {
+    testSuiteHandler.runLightHouse(sendSlack);
   },
 };

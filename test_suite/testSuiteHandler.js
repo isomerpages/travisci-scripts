@@ -70,14 +70,16 @@ module.exports = {
   // returns false otherwise (i.e. all files are good)
   startTests(sendSlack) {
     readDirectory();
-    if (process.env.STAGING_URL) runLightHouse(process.env.STAGING_URL, sendSlack);
     console.log(`Number of files checked: ${fileCount}`);
     console.log(`Number of files with errors: ${errorCount}`);
+
+    const travisBranch = process.env.TRAVIS_BRANCH;
     let errorOutput = '';
+
     if (errorCount === 1) {
-      errorOutput = `Hey, this file doesn't look right:${errorMessage}`;
+      errorOutput = `An error was found in \`${travisBranch === 'master' ? process.env.PROD_URL : process.env.STAGING_URL}\`:${errorMessage}`;
     } else if (errorCount > 1) {
-      errorOutput = `Hey, I've found errors in these ${errorCount} files:${errorMessage}`;
+      errorOutput = `These errors were found in \`${travisBranch === 'master' ? process.env.PROD_URL : process.env.STAGING_URL}\`:${errorMessage}`;
     }
     if (errorCount > 0) {
       console.log(errorOutput);
@@ -85,7 +87,7 @@ module.exports = {
       if (fatalErrorCount > 0) {
         // Fail the build here separately from Slack to avoid a case where this program
         // ceases execution before a Slack message is sent because we threw an error
-        sendSlackMessage(`The following errors were found in the repo for ${process.env.PROD_URL}:\n${errorOutput}`, true);
+        sendSlackMessage(errorOutput, true);
         console.error('Fatal error(s) were found! See above for details. Fatal errors must be rectified before merging to master is allowed.');
         process.exitCode = 1;
       }
@@ -96,5 +98,9 @@ module.exports = {
     fileCount = 0;
     errorCount = 0;
     permalinks = [];
+  },
+  runLightHouse(sendSlack) {
+    if (process.env.PROD_URL && process.env.TRAVIS_BRANCH === 'master') runLightHouse(process.env.PROD_URL, sendSlack);
+    else if (process.env.STAGING_URL) runLightHouse(process.env.STAGING_URL, sendSlack);
   },
 };

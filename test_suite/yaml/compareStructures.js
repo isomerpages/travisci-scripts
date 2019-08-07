@@ -12,7 +12,6 @@
 
 function checkRequiredFields(structureDefinition, subject, chainString = '') {
   let returnErrors = [];
-
   if (!structureDefinition) return returnErrors;
   if (!subject) {
     // if blank subject, return all required elements
@@ -76,7 +75,7 @@ function checkRequiredFields(structureDefinition, subject, chainString = '') {
             );
           }
         }
-      } else {
+      } else if (subject[structureDefinition[i].name] !== undefined) {
         returnErrors = returnErrors.concat(
           checkRequiredFields(
             structureDefinition[i].children,

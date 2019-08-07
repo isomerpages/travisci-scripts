@@ -1,5 +1,6 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
+const grayMatter = require('gray-matter');
 
 let resourceRoomName = false;
 try {
@@ -21,9 +22,16 @@ module.exports = {
     // type 3 pages are resource room pages
     // type 4 pages are those by themselves (e.g. privacy.md and includes misc/search.md)
     let type = 3;
-    if (filePath === './index.md') type = 0;
-    else if (filePath.startsWith('./_')) type = 1;
-    else if (resourceRoomName && filePath.toLowerCase().startsWith(`./${resourceRoomName}/`)) type = 2;
+    try {
+      const frontMatter = grayMatter(data);
+
+      if (filePath === './index.md' || frontMatter.data.layout === 'homepage') type = 0;
+      else if (frontMatter.data.layout === 'contact_us') type = 4;
+      else if (filePath.startsWith('./_')) type = 1;
+      else if (resourceRoomName && filePath.toLowerCase().startsWith(`./${resourceRoomName}/`)) type = 2;
+    } catch (e) {
+      type = 3;
+    }
 
     // this is the part where we run our suite of markdown tests
 

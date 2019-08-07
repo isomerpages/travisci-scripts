@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/yicheng340/isomer-travisci-scripts#readme",
   "dependencies": {
-    "axios": "^0.18.1",
     "chrome-launcher": "^0.10.7",
     "gray-matter": "^4.0.2",
     "js-yaml": "^3.13.1",

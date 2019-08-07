@@ -62,7 +62,7 @@ const userFriendlyErrorMessages = {
 
 
 module.exports = {
-  runTest: (data, filePath) => {
+  runTest(data, filePath) {
     const returnObj = {
       hasError: false,
       hasFatalError: false,

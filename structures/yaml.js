@@ -123,4 +123,129 @@ module.exports.structure = {
       required: true,
     },
   ],
+  navigation: [
+    {
+      name: 'logo',
+      required: true,
+    },
+    {
+      name: 'links',
+      children: [
+        {
+          name: 'title',
+          required: true,
+        },
+        {
+          name: 'collection',
+        },
+        {
+          name: 'resource_room',
+        },
+        {
+          name: 'sublinks',
+          children: [
+            {
+              name: 'title',
+              required: true,
+            },
+            {
+              name: 'url',
+              required: true,
+            },
+          ],
+        },
+        {
+          name: 'url',
+        },
+      ],
+    },
+  ],
+  footer: [
+    {
+      name: 'contact_us',
+    },
+    {
+      name: 'show_reach',
+    },
+    {
+      name: 'feedback',
+      required: true,
+    },
+    {
+      name: 'faq',
+    },
+    {
+      name: 'privacy_policy',
+    },
+    {
+      name: 'terms_of_use',
+    },
+    {
+      name: 'copyright_agency',
+    },
+    {
+      name: 'social_media',
+      children: [
+        {
+          name: 'facebook',
+        },
+        {
+          name: 'twitter',
+        },
+        {
+          name: 'youtube',
+        },
+        {
+          name: 'instagram',
+        },
+        {
+          name: 'linkedin',
+        },
+      ],
+    },
+    {
+      name: 'navlinks',
+      children: [
+        {
+          name: 'title',
+          required: true,
+        },
+        {
+          name: 'collection',
+        },
+        {
+          name: 'resource_room',
+        },
+        {
+          name: 'sublinks',
+          children: [
+            {
+              name: 'title',
+              required: true,
+            },
+            {
+              name: 'url',
+              required: true,
+            },
+          ],
+        },
+        {
+          name: 'url',
+        },
+      ],
+    },
+    {
+      name: 'links',
+      children: [
+        {
+          name: 'title',
+          required: true,
+        },
+        {
+          name: 'url',
+          required: true,
+        },
+      ],
+    },
+  ],
 };
