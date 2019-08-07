@@ -1,5 +1,14 @@
-// runs the test for /_data/navigation.yml
 // Good luck Preston! (I'm sorry)
+// If you are rewriting this, consider using a schema validation library
+// such as yaml-schema-validator or yaml-validator, which makes your job
+// a lot more easier (and also lets you delete all my functions here)
+// I did not use these libraries as I could not find a suitable working
+// library at this time
+// Additional challenges when using a library is the collections key in
+// _config.yml - its children name can be anything - and nothing out
+// there supports running regex on key names. You can get around this by
+// not checking for keys not defined in the schema, but you'll miss out on
+// catching other genuine undefined keys
 
 const yaml = require('js-yaml');
 const { structure } = require('../../structures/yaml.js');
@@ -10,9 +19,7 @@ const returnObj = {
   errorMessage: '',
 };
 
-let callCount = 0;
-
-function checkRequiredFields(structureDefinition, subject) {
+function checkRequiredFields(structureDefinition, subject, chainString = '') {
   let returnErrors = [];
 
   if (!structureDefinition) return returnErrors;
@@ -20,18 +27,24 @@ function checkRequiredFields(structureDefinition, subject) {
     // if blank subject, return all required elements
     for (let i = 0; i < structureDefinition.length; i += 1) {
       if (structureDefinition[i].required && structureDefinition[i].name.regex) {
-        returnErrors.push(`${structureDefinition[i].name.humanReadableName} is required`);
+        returnErrors.push(`${chainString}${structureDefinition[i].name.humanReadableName} is required`);
       } else if (structureDefinition[i].required) {
-        returnErrors.push(`${structureDefinition[i].name} is required`);
+        returnErrors.push(`${chainString}${structureDefinition[i].name} is required`);
       }
     }
+    return returnErrors;
+  }
+  if (Array.isArray(subject)) {
+    subject.forEach((element) => {
+      returnErrors = returnErrors.concat(
+        checkRequiredFields(structureDefinition, element, chainString),
+      );
+    });
     return returnErrors;
   }
 
   for (let i = 0; i < structureDefinition.length; i += 1) {
     if (structureDefinition[i].required || typeof structureDefinition[i].requiredValue !== 'undefined') {
-      // console.log(structureDefinition[i].name, 'struct def name');
-      // console.log(subject, 'subject');
       if (typeof structureDefinition[i].name.regex !== 'undefined') {
         const regex = new RegExp(structureDefinition[i].name.regex, 'g');
 
@@ -42,33 +55,33 @@ function checkRequiredFields(structureDefinition, subject) {
           if (regex.test(keys[j])) {
             present = true;
             if (typeof structureDefinition[i].requiredValue !== 'undefined'
-            && structureDefinition[i].requiredValue !== subject[keys[j]]) {
-              returnErrors.push(`${structureDefinition[i].name.humanReadableName} must have a value of ${structureDefinition[i].requiredValue}`);
+              && structureDefinition[i].requiredValue !== subject[keys[j]]) {
+              returnErrors.push(`\`${chainString}${structureDefinition[i].name.humanReadableName}\` must have a value of \`${structureDefinition[i].requiredValue}\`. Its current value is \`${subject[keys[j]]}\``);
             }
             break;
           }
         }
 
         if (structureDefinition[i].required && !present) {
-          returnErrors.push(`${structureDefinition[i].name.humanReadableName} is required`);
+          returnErrors.push(`\`${chainString}${structureDefinition[i].name.humanReadableName}\` is missing`);
         }
       } else if (structureDefinition[i].required && typeof subject[structureDefinition[i].name] === 'undefined') {
-        returnErrors.push(`${structureDefinition[i].name} is required`);
+        returnErrors.push(`\`${chainString}${structureDefinition[i].name}\` is missing`);
       } else if (typeof structureDefinition[i].requiredValue !== 'undefined'
         && subject[structureDefinition[i].name] !== structureDefinition[i].requiredValue) {
-        returnErrors.push(`${structureDefinition[i].name} must have a value of ${structureDefinition[i].requiredValue}`);
+        returnErrors.push(`\`${chainString}${structureDefinition[i].name}\` must have a value of \`${structureDefinition[i].requiredValue}\`. Its current value is \`${subject[structureDefinition[i].name]}\``);
       }
     }
 
     if (structureDefinition[i].children) {
-      if (structureDefinition[i].name.regex) {
+      if (subject && structureDefinition[i].name.regex) {
         const regex = new RegExp(structureDefinition[i].name.regex, 'g');
 
         const keys = Object.keys(subject);
         for (let j = 0; j < keys.length; j += 1) {
           if (regex.test(keys[j])) {
             returnErrors = returnErrors.concat(
-              checkRequiredFields(structureDefinition[i].children, subject[keys[j]]),
+              checkRequiredFields(structureDefinition[i].children, subject[keys[j]], `${chainString}${keys[j]} > `),
             );
           }
         }
@@ -77,6 +90,7 @@ function checkRequiredFields(structureDefinition, subject) {
           checkRequiredFields(
             structureDefinition[i].children,
             subject[structureDefinition[i].name],
+            `${chainString}${structureDefinition[i].name} > `,
           ),
         );
       }
@@ -85,8 +99,7 @@ function checkRequiredFields(structureDefinition, subject) {
   return returnErrors;
 }
 
-function checkForUndefined(structureDefinition, subject) {
-  callCount += 1;
+function checkForUndefined(structureDefinition, subject, chainString = '') {
   let returnErrors = [];
 
   if (!subject) {
@@ -94,8 +107,9 @@ function checkForUndefined(structureDefinition, subject) {
   }
   if (Array.isArray(subject)) {
     subject.forEach((element) => {
-      const test = checkForUndefined(structureDefinition, element);
-      returnErrors = returnErrors.concat(test);
+      returnErrors = returnErrors.concat(
+        checkForUndefined(structureDefinition, element, chainString),
+      );
     });
     return returnErrors;
   }
@@ -103,10 +117,9 @@ function checkForUndefined(structureDefinition, subject) {
   const keys = Object.keys(subject);
 
   if (!structureDefinition) {
-    if (callCount === 1) console.log('it\'s one!');
     if (typeof subject === 'object') {
       for (let i = 0; i < keys.length; i += 1) {
-        returnErrors.push(`${keys[i]} is undefined`);
+        returnErrors.push(`\`${chainString}${keys[i]}\` is an unknown configuration. Please check if you have made any spelling errors`);
       }
     }
     return returnErrors;
@@ -116,14 +129,13 @@ function checkForUndefined(structureDefinition, subject) {
     let defined = false;
 
     for (let j = 0; j < structureDefinition.length; j += 1) {
-      // console.log(structureDefinition[j].name, keys[i], keys[i] === structureDefinition[j].name);
       if (structureDefinition[j].name.regex) {
         const regex = new RegExp(structureDefinition[j].name.regex, 'g');
         if (regex.test(keys[i])) {
           // match found, check children if any and check the next field
-          if (Object.keys(subject[keys[i]]).length > 0) {
+          if (subject[keys[i]] && Object.keys(subject[keys[i]]).length > 0) {
             returnErrors = returnErrors.concat(
-              checkForUndefined(structureDefinition[j].children, subject[keys[i]]),
+              checkForUndefined(structureDefinition[j].children, subject[keys[i]], `${chainString}${keys[i]} > `),
             );
           }
           defined = true;
@@ -131,9 +143,9 @@ function checkForUndefined(structureDefinition, subject) {
         }
       } else if (keys[i] === structureDefinition[j].name) {
         // match found, check children if any and check the next field
-        if (Object.keys(subject[keys[i]]).length > 0) {
+        if (subject[keys[i]] && Object.keys(subject[keys[i]]).length > 0) {
           returnErrors = returnErrors.concat(
-            checkForUndefined(structureDefinition[j].children, subject[keys[i]]),
+            checkForUndefined(structureDefinition[j].children, subject[keys[i]], `${chainString}${keys[i]} > `),
           );
         }
         defined = true;
@@ -142,7 +154,7 @@ function checkForUndefined(structureDefinition, subject) {
     }
 
     if (!defined) {
-      returnErrors.push(`${keys[i]} is undefined`);
+      returnErrors.push(`\`${chainString}${keys[i]}\` is an unknown configuration. Please check if you have made any spelling errors`);
     }
   }
   return returnErrors;
