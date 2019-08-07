@@ -1,29 +1,53 @@
 const fs = require('fs');
-const checkNavigation = require('./yaml/checkNavigation.js');
-const checkHomepage = require('./yaml/checkHomepage.js');
-const checkYamlGeneric = require('./yaml/checkYamlGeneric.js');
+const yaml = require('js-yaml');
+const { compareStructures } = require('./yaml/compareStructures.js');
+const { structure } = require('../structures/yaml.js');
 
 module.exports = {
   runTest(filePath, fileName) {
     const data = fs.readFileSync(filePath, 'utf-8');
 
-    // this is where we run our yaml tests
-    // As each yaml file is a singleton, they each have their own
-    // structure, and hence we are forced to write a singleton test
-    // for each file. As a result, it does not cover all yaml files
-    // out there, and it is not be worth the effort to test for each
-    // file as well taking into account that the yaml files are
-    // edited much less frequently
+    const returnObj = {
+      hasError: false,
+      hasFatalError: false,
+      errorMessage: '',
+    };
 
-    let returnObj;
+    const errorHeader = `\n\`${filePath.substring(1)}\`:`;
+    let yamlData;
 
-    if (filePath.toLowerCase().endsWith('navigation.yml') || filePath.toLowerCase().endsWith('navigation.yaml')) {
-      returnObj = checkNavigation.runTest(data, filePath, fileName);
-    } else if (filePath.toLowerCase().endsWith('homepage.yml') || filePath.toLowerCase().endsWith('homepage.yaml')) {
-      returnObj = checkHomepage.runTest(data, filePath, fileName);
-    } else { // run the generic syntax test
-      returnObj = checkYamlGeneric.runTest(data, filePath, fileName);
+    // turns the yaml string into a javascript object
+    try {
+      yamlData = yaml.safeLoad(data);
+    } catch (e) {
+      // yaml.safeload() throws an exception if there are YAML syntax errors,
+      // e.g. 2 attributes with the same name
+      // we will just output the syntax error details and quit checking
+      console.error(e);
+      returnObj.errorMessage += `${errorHeader}\n\`\`\`${e.message}\n\`\`\``;
+      returnObj.hasError = true;
+      return returnObj; // no point continuing if the data isn't properly loaded
     }
+
+    // find and load structure definitions
+    let fileNameWithoutExtension = '';
+    const fileNameArray = fileName.split('.');
+    for (let i = 0; i < fileNameArray.length - 1; i += 1) {
+      if (i !== 0) fileNameWithoutExtension += '.';
+      fileNameWithoutExtension += fileNameArray[i];
+    }
+
+    if (structure[fileNameWithoutExtension]) {
+      const errorMessageArray = compareStructures(structure[fileNameWithoutExtension], yamlData);
+
+      if (errorMessageArray.length > 0) {
+        returnObj.hasError = true;
+        errorMessageArray.forEach((errorMessage) => {
+          returnObj.errorMessage += `${errorHeader} ${errorMessage}`;
+        });
+      }
+    }
+
     return returnObj;
   },
 };

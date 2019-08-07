@@ -2,7 +2,7 @@
 // the respective shell commands for each file
 
 // full name of files/folders where checks are to be skipped
-const ignores = ['readme.md', 'node_modules', '_site'];
+const ignores = ['readme.md', 'node_modules', '_site', '.travis.yml'];
 
 // should hidden files and directories (i.e. names
 // beginning with '.') be checked?
