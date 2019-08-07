@@ -250,9 +250,6 @@ module.exports.structure = {
     {
       name: 'date',
     },
-    {
-      name: 'category',
-    },
   ],
   3: [
     {
