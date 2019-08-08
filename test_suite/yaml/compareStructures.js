@@ -17,9 +17,9 @@ function checkRequiredFields(structureDefinition, subject, chainString = '') {
     // if blank subject, return all required elements
     for (let i = 0; i < structureDefinition.length; i += 1) {
       if (structureDefinition[i].required && structureDefinition[i].name.regex) {
-        returnErrors.push(`${chainString}${structureDefinition[i].name.humanReadableName} is required`);
+        returnErrors.push(`\`${chainString}${structureDefinition[i].name.humanReadableName}\` is missing`);
       } else if (structureDefinition[i].required) {
-        returnErrors.push(`${chainString}${structureDefinition[i].name} is required`);
+        returnErrors.push(`\`${chainString}${structureDefinition[i].name}\` is missing`);
       }
     }
     return returnErrors;
