@@ -311,7 +311,6 @@ module.exports.structure = {
         },
         {
           name: 'maps_link',
-          required: true,
         },
         {
           name: 'operating_hours',
